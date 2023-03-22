@@ -1,0 +1,9 @@
+graph { 
+	 fontname="Helvetica,Arial,sans-serif" 
+	 node [shape = circle]; 
+	 4 -- 1 [label = "-3"];
+	 2 -- 1 [label = "5"];
+	 1;
+	 2;
+	 4;
+}

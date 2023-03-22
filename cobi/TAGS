@@ -1,0 +1,108 @@
+
+KinshipTies.pde,485
+import java.util.Collections;Collections6,152
+class KinshipTies 11,433
+  public KinshipTies(15,612
+  public ArrayList<String> getKinshipTiesForDirection(24,1101
+  public HashMap<HashMap44,2292
+  public HashMap<String, ArrayList<String>> getKinshipTies(44,2292
+  public int getMaxKinshipTies(52,2598
+  void buildKinshipDataStructure(58,2732
+  HashMap<HashMap122,5867
+  HashMap<String, HashMap<String, ArrayList<String>>> kinshipData;122,5867
+  int maxKinshipTies;123,5934
+
+LabColorSpace.pde,186
+import java.lang.Math;Math6,129
+color lerpColorLab(15,630
+public float[] colorToLab(34,1277
+public color labToColor(44,1571
+float[] labToRgb01(81,3087
+float[] rgb01ToLab(107,4084
+
+MathUtils.pde,127
+static class MathUtils 6,129
+  static public float getDistanceFromTo(9,231
+  static public float angleToPlusMinus180(17,530
+
+Paafu2.pde,1055
+Table locationTable;7,160
+Table populationTable;8,181
+PaafuDirections paafuDirections;9,204
+KinshipTies kinshipTies;12,290
+float minLatitude,15,371
+float minLatitude, maxLatitude;15,371
+float minLongitude,16,403
+float minLongitude, maxLongitude;16,403
+float minPop1980,17,437
+float minPop1980, maxPop1980;17,437
+float minPop1994,18,467
+float minPop1994, maxPop1994;18,467
+float minPop2000,19,497
+float minPop2000, maxPop2000;19,497
+float minPop2010,20,527
+float minPop2010, maxPop2010;20,527
+float minArea,21,557
+float minArea, maxArea;21,557
+PanZoomMap panZoomMap;24,611
+PFont labelFont;25,634
+String highlightedMunicipality 26,651
+String selectedMunicipality 27,688
+void setup(33,774
+void draw(62,1694
+void keyPressed(181,5857
+void mousePressed(188,6032
+void mouseDragged(197,6232
+void mouseWheel(202,6287
+float getLatitude(209,6442
+float getLongitude(214,6595
+float getArea01(219,6750
+float getRadius(228,7100
+String getMunicipalityUnderMouse(238,7570
+void loadRawDataTables(263,8511
+void computeDerivedData(272,8895
+
+PaafuDirections.pde,367
+public class PaafuDirections 8,247
+  public PaafuDirections(11,357
+  public float getAngle(19,839
+  public String getDirection(25,1095
+  public float getAngleFromTo(41,1843
+  public String getDirectionFromTo(52,2370
+  public float getDirectionCount(60,2646
+  public String getDirection(64,2730
+  public float getAngle(68,2838
+  Table directionTable;72,2937
+
+PanZoomMap.pde,47
+class PanZoomMap extends PanZoomPage 127,4225
+
+PanZoomPage.pde,534
+public class PanZoomPage 67,2803
+  public PanZoomPage(69,2834
+  float pageXtoScreenX(80,2997
+  float pageYtoScreenY(84,3082
+  float pageLengthToScreenLength(88,3167
+  float screenXtoPageX(93,3244
+  float screenYtoPageY(97,3334
+  float screenLengthToPageLength(101,3424
+  void fitPageOnScreen(105,3498
+  void mousePressed(118,3753
+  void mouseDragged(125,3875
+  void mouseWheel(136,4131
+  float scale 157,4567
+  float translateX 158,4588
+  float translateY 159,4614
+  int lastMouseX 160,4640
+  int lastMouseY 161,4662
+
+TableUtils.pde,409
+static class TableUtils 6,260
+  static float findMinFloatInColumn(8,289
+  static float findMinFloatInColumn(19,554
+  static float findMaxFloatInColumn(23,693
+  static float findMaxFloatInColumn(34,958
+  static public boolean contains(38,1095
+  static public int[] findRowIndicesForTwoCriteria(48,1261
+  static public int[] findRowIndicesForTwoCriteria(64,1861
+  static public void printTable(70,2185

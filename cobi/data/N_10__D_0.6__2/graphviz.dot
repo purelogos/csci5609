@@ -1,0 +1,41 @@
+graph { 
+	 fontname="Helvetica,Arial,sans-serif" 
+	 node [shape = circle]; 
+	 10 -- 2 [label = "7"];
+	 10 -- 3 [label = "-9"];
+	 10 -- 4 [label = "4"];
+	 10 -- 6 [label = "-2"];
+	 10 -- 8 [label = "4"];
+	 10 -- 9 [label = "2"];
+	 9 -- 1 [label = "12"];
+	 9 -- 2 [label = "-14"];
+	 9 -- 3 [label = "14"];
+	 9 -- 4 [label = "10"];
+	 9 -- 6 [label = "-4"];
+	 9 -- 7 [label = "6"];
+	 9 -- 8 [label = "-8"];
+	 8 -- 3 [label = "-3"];
+	 8 -- 4 [label = "10"];
+	 8 -- 5 [label = "8"];
+	 7 -- 1 [label = "-2"];
+	 7 -- 3 [label = "-1"];
+	 7 -- 5 [label = "-7"];
+	 7 -- 6 [label = "14"];
+	 6 -- 1 [label = "-13"];
+	 6 -- 2 [label = "-14"];
+	 6 -- 5 [label = "10"];
+	 5 -- 2 [label = "-3"];
+	 5 -- 3 [label = "-14"];
+	 4 -- 1 [label = "8"];
+	 4 -- 2 [label = "3"];
+	 1;
+	 2;
+	 3;
+	 4;
+	 5;
+	 6;
+	 7;
+	 8;
+	 9;
+	 10;
+}
