@@ -1,4 +1,4 @@
-/* CSci-5609 Assignment 2: Visualization of Paafu Kinship Ties for the Islands of Micronesia //<>// //<>// //<>// //<>// //<>//
+/* CSci-5609 Assignment 2: Visualization of Paafu Kinship Ties for the Islands of Micronesia //<>// //<>// //<>// //<>// //<>// //<>//
 */
 
 // Library
@@ -79,6 +79,14 @@ void setup() {
       .setPosition(50, 125)
       .setSize(100, 50);
 
+  // add callback function for button
+  rectButton.onClick(new CallbackListener() {
+    public void controlEvent(CallbackEvent event) {
+      buttonClicked();
+    }
+  });
+
+
 }
 
 
@@ -90,7 +98,7 @@ void draw() {
   density = round(k_density.getValue()*10) / 10.0;
   run_num = (int) k_run.getValue();
   
-  /*
+
   // Municipalities should highlight (i.e., change appearance in some way) whenever the mouse is hovering
   // over them so the user knows something will happen if they click.  If they do click while a municipality
   // is highlighted, then that municipality becomes the selectedMunicipality and the visualization should
@@ -106,8 +114,28 @@ void draw() {
   float mapX2 = panZoomMap.longitudeToScreenX(163.1);
   float mapY2 = panZoomMap.latitudeToScreenY(10.0);
   rect(mapX1, mapY1, mapX2, mapY2);
+
+
+  // Drawing Nodes
+  for(int i = 1; i<= importer.num_node; i++){
+      fill(0);
+      ellipse(importer.node_loc_arr[i].loc_x,  importer.node_loc_arr[i].loc_y, 20, 20);
+  }
+
+  // Drawing Edges
+  for(int x = 1; x<= importer.num_node; x++){
+      for(int y = 1; y < x; y++){
+	  int pair_weight = inputGraphArray[x][y] + inputGraphArray[y][x];
+
+	  // X-->X, Y-->Y
+	  if (pair_weight != 0) {
+	      line(importer.node_loc_arr[x].loc_x, importer.node_loc_arr[x].loc_y,
+		   importer.node_loc_arr[y].loc_x, importer.node_loc_arr[y].loc_y);
+	  }
+      }
+  }
   
-     
+  /*     
   // Example Solution to Assignment 1
      
   // defined in screen space, so the circles will be the same size regardless of zoom level
@@ -231,7 +259,7 @@ void draw() {
   int labelStep = gradientHeight / 5;
   for (int y=0; y<gradientHeight; y++) {
     float amt = 1.0 - (float)y/(gradientHeight-1);
-    color c = lerpColorLab(lowestPopulationColor, highestPopulationColor, amt);
+    color c = lerpColorLab(lowestPopulationColor, highestPopulationColor, amt); //<>//
     stroke(c);
     line(1500, 70 + y, 1500+gradientWidth, 70 + y);
     if ((y % labelStep == 0) || (y == gradientHeight-1)) {
@@ -321,88 +349,48 @@ float getRadius(String municipalityName) {
   return lerp(minRadius, maxRadius, amt);
 }
 
+*/
 // Returns the municipality currently under the mouse cursor so that it can be highlighted or selected
 // with a mouse click.  If the municipalities overlap and more than one is under the cursor, the
 // smallest municipality will be returned, since this is usually the hardest one to select.
 String getMunicipalityUnderMouse() {
-  float smallestRadiusSquared = Float.MAX_VALUE;
-  String underMouse = "";
-  for (int i=0; i<locationTable.getRowCount(); i++) {
-    TableRow rowData = locationTable.getRow(i);
-    String municipality = rowData.getString("Municipality");
-    float latitude = rowData.getFloat("Latitude");
-    float longitude = rowData.getFloat("Longitude");
-    float screenX = panZoomMap.longitudeToScreenX(longitude);
-    float screenY = panZoomMap.latitudeToScreenY(latitude);
-    float distSquared = (mouseX-screenX)*(mouseX-screenX) + (mouseY-screenY)*(mouseY-screenY);
-    float radius = getRadius(municipality);
-    float radiusSquared = constrain(radius*radius, 1, height);
-    if ((distSquared <= radiusSquared) && (radiusSquared < smallestRadiusSquared)) {
-      underMouse = municipality;
-      smallestRadiusSquared = radiusSquared;
-    }
-  }
-  return underMouse;  
+  // float smallestRadiusSquared = Float.MAX_VALUE;
+  // String underMouse = "";
+  // for (int i=0; i<locationTable.getRowCount(); i++) {
+  //   TableRow rowData = locationTable.getRow(i);
+  //   String municipality = rowData.getString("Municipality");
+  //   float latitude = rowData.getFloat("Latitude");
+  //   float longitude = rowData.getFloat("Longitude");
+  //   float screenX = panZoomMap.longitudeToScreenX(longitude);
+  //   float screenY = panZoomMap.latitudeToScreenY(latitude);
+  //   float distSquared = (mouseX-screenX)*(mouseX-screenX) + (mouseY-screenY)*(mouseY-screenY);
+  //   float radius = getRadius(municipality);
+  //   float radiusSquared = constrain(radius*radius, 1, height);
+  //   if ((distSquared <= radiusSquared) && (radiusSquared < smallestRadiusSquared)) {
+  //     underMouse = municipality;
+  //     smallestRadiusSquared = radiusSquared;
+  //   }
+  // }
+  // return underMouse;
+    return " ";
 }
 
 
 
 // === DATA PROCESSING ROUTINES ===
 
-void loadRawDataTables() {
-  locationTable = loadTable("FSM-municipality-locations.csv", "header");
-  println("Location table:", locationTable.getRowCount(), "x", locationTable.getColumnCount()); 
-  
-  populationTable = loadTable("FSM-municipality-populations.csv", "header");
-  println("Population table:", populationTable.getRowCount(), "x", populationTable.getColumnCount()); 
-}
-
-
-void computeDerivedData() {
-  // lookup min/max data ranges for the variables we will want to depict
-  minLatitude = TableUtils.findMinFloatInColumn(locationTable, "Latitude");
-  maxLatitude = TableUtils.findMaxFloatInColumn(locationTable, "Latitude");
-  println("Latitude range:", minLatitude, "to", maxLatitude);
-
-  minLongitude = TableUtils.findMinFloatInColumn(locationTable, "Longitude");
-  maxLongitude = TableUtils.findMaxFloatInColumn(locationTable, "Longitude");
-  println("Longitude range:", minLongitude, "to", maxLongitude);
-
-  minPop1980 = TableUtils.findMinFloatInColumn(populationTable, "Population 1980 Census");
-  maxPop1980 = TableUtils.findMaxFloatInColumn(populationTable, "Population 1980 Census");
-  println("Pop 1980 range:", minPop1980, "to", maxPop1980);
-  
-  minPop1994 = TableUtils.findMinFloatInColumn(populationTable, "Population 1994 Census");
-  maxPop1994 = TableUtils.findMaxFloatInColumn(populationTable, "Population 1994 Census");
-  println("Pop 1994 range:", minPop1994, "to", maxPop1994);
-
-  minPop2000 = TableUtils.findMinFloatInColumn(populationTable, "Population 2000 Census");
-  maxPop2000 = TableUtils.findMaxFloatInColumn(populationTable, "Population 2000 Census");
-  println("Pop 2000 range:", minPop2000, "to", maxPop2000);
-
-  minPop2010 = TableUtils.findMinFloatInColumn(populationTable, "Population 2010 Census");
-  maxPop2010 = TableUtils.findMaxFloatInColumn(populationTable, "Population 2010 Census");
-  println("Pop 2010 range:", minPop2010, "to", maxPop2010);
-
-  minArea = TableUtils.findMinFloatInColumn(populationTable, "Area");
-  maxArea = TableUtils.findMaxFloatInColumn(populationTable, "Area");
-  println("Area range:", minArea, "to", maxArea);
- 
-}
-*/
-
-void RectButton() {
+void buttonClicked() {
   // function to call when button is clicked
   String dataDir = sketchPath("");
 
   // Print the data directory to the console
   println("Sketch data directory: " + dataDir);
-  String graph_folder = dataDir + "data/" + "N_" + Integer.toString(node) + "__D_"+ Float.toString(density) + "__" + Integer.toString(run_num) + "/";
+  String graph_folder = dataDir + "data/" + "N_" + String.format("%02d", node) + "__D_"+ Float.toString(density) + "__" + Integer.toString(run_num) + "/";
 
   println("Button clicked!");
   println("Data Folder: " + graph_folder);
   
   inputGraphArray = importer.importGraphWithViz(inputGraphArray, graph_folder + "dummy.txt");   // Problem
   solution_qubo   = importer.parse_qubo(solution_qubo, graph_folder + "1_solution_qubo.txt");   // Solution #1, has n solutions
-  solution_cobi   = importer.parse_qubo(solution_cobi, graph_folder + "2_solution_cobi.txt");   // Solution #2, has 1 solution 
+  solution_cobi   = importer.parse_cobi(solution_cobi, graph_folder + "2_solution_cobi.txt");   // Solution #2, has 1 solution 
 }
