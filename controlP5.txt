@@ -1,0 +1,6 @@
+macOS: /Applications/Processing.app/Contents/Java/libraries/
+Windows: C:\Program Files\Processing\libraries\
+Linux: /usr/share/processing/libraries/
+
+Installation : 
+Unzip and put the extracted controlP5 folder into the libraries folder of your processing sketches. Reference and examples are included in the controlP5 folder.
