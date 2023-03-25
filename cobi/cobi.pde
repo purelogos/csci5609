@@ -1,75 +1,41 @@
-/* CSci-5609 Assignment 2: Visualization of Paafu Kinship Ties for the Islands of Micronesia
+/* CSci-5609 Assignment 2: Visualization of Paafu Kinship Ties for the Islands of Micronesia //<>// //<>// //<>// //<>// //<>//
 */
 
-// === GLOBAL DATA VARIABLES ===
+// Library
+import controlP5.*;
+// Installation ControlP5 : Unzip and put the extracted controlP5 folder into the libraries folder of your processing sketches. Reference and examples are included in the controlP5 folder.
+// Or goto "Sketch" >> "Import Library" >> "Manage Libraries" >> Search and Install...  
 
 // Raw data tables & objects
-Table locationTable;
-Table populationTable;
-PaafuDirections paafuDirections;
-
-// Derived data: kinships based on Paafu directions
-KinshipTies kinshipTies;
-
-// Derived data: mins and maxes for each data variable
-float minLatitude, maxLatitude;
-float minLongitude, maxLongitude;
-float minPop1980, maxPop1980;
-float minPop1994, maxPop1994;
-float minPop2000, maxPop2000;
-float minPop2010, maxPop2010;
-float minArea, maxArea;
 
 // Graphics and UI variables
+ControlP5 cp5;
+Knob k_node;
+Knob k_density;
+Knob k_run;
+Button rectButton;
+
 PanZoomMap panZoomMap;
 PFont labelFont;
 String highlightedMunicipality = "";
 String selectedMunicipality = "Romanum";
 
+// parameters for data sweeping      
+int node = 11;
+float density = 0.3;
+int run_num = 3;
 
-
+GraphImporter importer = new GraphImporter();
+int[][] inputGraphArray = new int[64][64];
+int[][] solution_qubo     = new int[10][64];
+int[][] solution_cobi     = new int[10][64];
+  
 // === PROCESSING BUILT-IN FUNCTIONS ===
 
 void setup() {
   // size of the graphics window
   size(1600,900);
 
-  String dataDir = sketchPath("");
-
-  // Print the data directory to the console
-  println("Sketch data directory: " + dataDir);
-  
-  GraphImporter importer = new GraphImporter();
-  int[][] inputGraphArray = new int[64][64];
-  int[][] solution_qubo     = new int[10][64];
-  int[][] solution_cobi     = new int[10][64];
-  
-  // parameters for data sweeping      
-  int node = 11;
-  float density = 0.3;
-  int run_num = 3; 
-  String graph_folder = dataDir + "data/" + "N_" + Integer.toString(node) + "__D_"+ Float.toString(density) + "__" + Integer.toString(run_num) + "/";
-  println("Data Folder: " + graph_folder);
-  
-  inputGraphArray = importer.importGraphWithViz(inputGraphArray, graph_folder + "dummy.txt");   // Problem
-  solution_qubo   = importer.parse_qubo(solution_qubo, graph_folder + "1_solution_qubo.txt");   // Solution #1, has n solutions
-  solution_cobi   = importer.parse_qubo(solution_cobi, graph_folder + "2_solution_cobi.txt");   // Solution #2, has 1 solution 
-
-  
-  /* 
-  // load data in from disk
-  loadRawDataTables();
-  paafuDirections = new PaafuDirections();
-  
- 
-
-  // compute derived data
-  // combine the location and direction data to identify Paafu-style kinship ties
-  kinshipTies = new KinshipTies(paafuDirections, locationTable);
-
-  // do any other data processing, e.g., finding mins and maxes for data variables
-  computeDerivedData();
-  
   // these coordinates define a rectangular region for the map that happens to be
   // centered around Micronesia
   panZoomMap = new PanZoomMap(5.2, 138, 10.0, 163.1);
@@ -81,8 +47,37 @@ void setup() {
   panZoomMap.translateY = -43944.914;
   
   labelFont = loadFont("Futura-Medium-18.vlw");
-  */
-  
+
+  // Drop down menu
+  cp5 = new ControlP5(this);
+  k_node = cp5.addKnob("Node")
+      .setPosition(50, 50)
+      .setRange(3, 58)
+      .setValue(11)
+      .setDragDirection(Knob.HORIZONTAL)
+      .setNumberOfTickMarks(14)
+      .setDecimalPrecision(0);
+
+  k_density = cp5.addKnob("Density")
+      .setPosition(100, 50)
+      .setRange(0.3, 0.9)
+      .setValue(0.4)
+      .setDragDirection(Knob.HORIZONTAL)
+      .setNumberOfTickMarks(7)
+      .setDecimalPrecision(1);
+
+  k_run = cp5.addKnob("Run")
+      .setPosition(150, 50)
+      .setRange(1, 3)
+      .setValue(2)
+      .setDragDirection(Knob.HORIZONTAL)
+      .setNumberOfTickMarks(3)
+      .setDecimalPrecision(0);
+
+  // create button with a rectangular shape
+  rectButton = cp5.addButton("Reload Graph")
+      .setPosition(50, 125)
+      .setSize(100, 50);
 
 }
 
@@ -90,6 +85,10 @@ void setup() {
 void draw() {
   // clear the screen
   background(230);
+
+  node = (int) k_node.getValue();
+  density = round(k_density.getValue()*10) / 10.0;
+  run_num = (int) k_run.getValue();
   
   /*
   // Municipalities should highlight (i.e., change appearance in some way) whenever the mouse is hovering
@@ -391,3 +390,19 @@ void computeDerivedData() {
  
 }
 */
+
+void RectButton() {
+  // function to call when button is clicked
+  String dataDir = sketchPath("");
+
+  // Print the data directory to the console
+  println("Sketch data directory: " + dataDir);
+  String graph_folder = dataDir + "data/" + "N_" + Integer.toString(node) + "__D_"+ Float.toString(density) + "__" + Integer.toString(run_num) + "/";
+
+  println("Button clicked!");
+  println("Data Folder: " + graph_folder);
+  
+  inputGraphArray = importer.importGraphWithViz(inputGraphArray, graph_folder + "dummy.txt");   // Problem
+  solution_qubo   = importer.parse_qubo(solution_qubo, graph_folder + "1_solution_qubo.txt");   // Solution #1, has n solutions
+  solution_cobi   = importer.parse_qubo(solution_cobi, graph_folder + "2_solution_cobi.txt");   // Solution #2, has 1 solution 
+}
