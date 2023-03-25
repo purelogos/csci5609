@@ -15,10 +15,15 @@ import java.util.stream.Collectors;
 public class node_loc {
   float loc_x;
   float loc_y;
+  float txt_x;
+  float txt_y;
   
-  node_loc(float x, float y) {
+    node_loc(float x, float y, float tx, float ty) {
     loc_x = x;
     loc_y = y;
+
+    txt_x = tx;
+    txt_y = ty;
   }
 }
 
@@ -31,11 +36,12 @@ public class GraphImporter {
 
     node_loc[] node_loc_arr = new node_loc[59];
     // Centroid of circle
-    int cx = 600;
-    int cy = 450;
+    int cx = 350;
+    int cy = 600;
 
     // Radious of circle
-    int r = 400;
+    int r        = 250;
+    int dr_text  = 30;
   
 
     public int[][] importGraphWithViz(int[][] input_data_array, String graph_file_name) {
@@ -117,7 +123,10 @@ public class GraphImporter {
 	    float x = cx + r * cos(angle); // x 
 	    float y = cy + r * sin(angle); // y
 
-	    this.node_loc_arr[i] = new node_loc(x,y);
+	    float tx = x + dr_text *  cos(angle);
+	    float ty = y + dr_text *  sin(angle);
+
+	    this.node_loc_arr[i] = new node_loc(x,y,tx,ty);
 	}
 
 	
@@ -196,7 +205,24 @@ public class GraphImporter {
       
       return input_data_array;
     }
- 
+
+    public int[] node_mapping_by_name (int[] input_mapping_array) {
+
+	for (int i = 1; i <= this.num_node; i++) {
+	    input_mapping_array[i] = i;
+	}
+
+	return input_mapping_array;
+    }
+
+    public int[] node_mapping_by_reverse (int[] input_mapping_array) {
+
+	for (int i = 1; i <= this.num_node; i++) {
+	    input_mapping_array[i] = this.num_node - i + 1;
+	}
+
+	return input_mapping_array;
+    }
 
 
 }
