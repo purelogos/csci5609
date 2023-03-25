@@ -1,7 +1,5 @@
-/* CSci-5609 Assignment 2: Visualization of Paafu Kinship Ties for the Islands of Micronesia //<>// //<>// //<>// //<>// //<>// //<>//
-*/
-
 // Library
+
 import controlP5.*;
 // Installation ControlP5 : Unzip and put the extracted controlP5 folder into the libraries folder of your processing sketches. Reference and examples are included in the controlP5 folder.
 // Or goto "Sketch" >> "Import Library" >> "Manage Libraries" >> Search and Install...  
@@ -14,6 +12,8 @@ Knob k_node;
 Knob k_density;
 Knob k_run;
 Button rectButton;
+DropdownList dropdown;
+DropdownList dropdown_sol;
 
 PanZoomMap panZoomMap;
 PFont labelFont;
@@ -29,12 +29,13 @@ GraphImporter importer = new GraphImporter();
 int[][] inputGraphArray = new int[64][64];
 int[][] solution_qubo     = new int[10][64];
 int[][] solution_cobi     = new int[10][64];
-  
+
+int[]   mapping_table = new int[64];    // To change the order of nodes by filtering information (such as the sum of edge weights or the sign bit of a solution).
 // === PROCESSING BUILT-IN FUNCTIONS ===
 
 void setup() {
   // size of the graphics window
-  size(1600,900);
+  size(1920,1080);
 
   // these coordinates define a rectangular region for the map that happens to be
   // centered around Micronesia
@@ -74,8 +75,15 @@ void setup() {
       .setNumberOfTickMarks(3)
       .setDecimalPrecision(0);
 
+  // Create a new DropdownList object
+  dropdown = cp5.addDropdownList("Sort")
+          .setPosition(50, 200)
+          .setSize(150,150)
+          ;
+
+
   // create button with a rectangular shape
-  rectButton = cp5.addButton("Reload Graph")
+  rectButton = cp5.addButton("Load Graph")
       .setPosition(50, 125)
       .setSize(100, 50);
 
@@ -86,6 +94,28 @@ void setup() {
     }
   });
 
+  // Add three options to the dropdown menu
+  dropdown.addItem("Sequential", 0);
+  dropdown.addItem("Reverse",    1);
+  dropdown.addItem("(T.B.D) By sum of edge wegits", 2);
+  dropdown.addItem("(T.B.D) By spin values in solution #1", 3);
+  dropdown.addItem("(T.B.D) By spin values in solution #2", 4);
+
+  // Set the default value of the dropdown menu to the first option (A)
+  dropdown.setValue(0);
+
+  // Create a new DropdownList object for qubo solution
+  dropdown_sol = cp5.addDropdownList("Select Solution")
+      .setPosition(350, 200)
+      .setSize(200,200)
+      ;
+
+  dropdown_sol.addItem("Select Solution : 0" , 0);
+  // Set the default value of the dropdown menu to the first option (A)
+  dropdown_sol.setValue(0);
+
+  
+  mapping_table = importer.node_mapping_by_name(mapping_table);
 
 }
 
@@ -98,6 +128,35 @@ void draw() {
   density = round(k_density.getValue()*10) / 10.0;
   run_num = (int) k_run.getValue();
   
+  int solution_number = (int) dropdown_sol.getValue();
+
+  // Execute different tasks based on the user's selection
+  int node_sort = (int) dropdown.getValue();
+  switch (node_sort) {
+  case 0:
+      // Execute task A
+      System.out.println("\nSequential");
+      mapping_table = importer.node_mapping_by_name(mapping_table);
+      break;
+  case 1:
+      // Execute task B
+      System.out.println("\nReverse");
+      mapping_table = importer.node_mapping_by_reverse(mapping_table);
+      break;
+  case 2:
+      // Execute task C
+      System.out.println("\nBy weights");
+      break;
+  case 3:
+      // Execute task C
+      System.out.println("\nBy Solution #1");
+      break;
+  case 4:
+      // Execute task C
+      System.out.println("\nBy Solution #2");
+      break;
+      
+  }
 
   // Municipalities should highlight (i.e., change appearance in some way) whenever the mouse is hovering
   // over them so the user knows something will happen if they click.  If they do click while a municipality
@@ -115,25 +174,32 @@ void draw() {
   float mapY2 = panZoomMap.latitudeToScreenY(10.0);
   rect(mapX1, mapY1, mapX2, mapY2);
 
-
+  
+  /////////////////////////////////////////////////////////////////////////////////
+  // Ising Problem 
   // Drawing Nodes
-  for(int i = 1; i<= importer.num_node; i++){
-      fill(0);
-      ellipse(importer.node_loc_arr[i].loc_x,  importer.node_loc_arr[i].loc_y, 20, 20);
-  }
+  draw_edges(0,0, 1);                  // mode 1
+  draw_nodes(0,0, 1, solution_number); // mode 1
 
-  // Drawing Edges
-  for(int x = 1; x<= importer.num_node; x++){
-      for(int y = 1; y < x; y++){
-	  int pair_weight = inputGraphArray[x][y] + inputGraphArray[y][x];
+  /////////////////////////////////////////////////////////////////////////////////
 
-	  // X-->X, Y-->Y
-	  if (pair_weight != 0) {
-	      line(importer.node_loc_arr[x].loc_x, importer.node_loc_arr[x].loc_y,
-		   importer.node_loc_arr[y].loc_x, importer.node_loc_arr[y].loc_y);
-	  }
-      }
-  }
+  /////////////////////////////////////////////////////////////////////////////////
+  // Solution #1
+  // Drawing Nodes
+
+  int offset_pr1 = importer.r*2 + 100;
+  draw_edges(0+offset_pr1,0, 2);                   // mode 2
+  draw_nodes(0+offset_pr1,0, 2,solution_number );  // mode 2
+
+
+  /////////////////////////////////////////////////////////////////////////////////
+  // Solution #2
+  // Drawing Nodes
+
+  int offset_pr2 = (importer.r*2 + 100) * 2;
+  draw_edges(0+offset_pr2,0, 3);                   // mode 3
+  draw_nodes(0+offset_pr2,0, 3, solution_number);  // mode 3
+
   
   /*     
   // Example Solution to Assignment 1
@@ -392,5 +458,181 @@ void buttonClicked() {
   
   inputGraphArray = importer.importGraphWithViz(inputGraphArray, graph_folder + "dummy.txt");   // Problem
   solution_qubo   = importer.parse_qubo(solution_qubo, graph_folder + "1_solution_qubo.txt");   // Solution #1, has n solutions
-  solution_cobi   = importer.parse_cobi(solution_cobi, graph_folder + "2_solution_cobi.txt");   // Solution #2, has 1 solution 
+  solution_cobi   = importer.parse_cobi(solution_cobi, graph_folder + "2_solution_cobi.txt");   // Solution #2, has 1 solution
+
+
+
+
+  dropdown_sol.remove();
+  // Create a new DropdownList object
+  dropdown_sol = cp5.addDropdownList("Select Solution")
+          .setPosition(350, 200)
+          .setSize(150,150)
+          ;
+
+  for (int i = 0; i < importer.num_solutions; i++){
+      // Add three options to the dropdown menu
+      dropdown_sol.addItem("Select Solution : " + i, i);
+  }
+  // Set the default value of the dropdown menu to the first option (A)
+  dropdown_sol.setValue(0);
+  
+}
+
+
+void draw_nodes(float offset_x, float offset_y, int mode, int sol_num){
+  float loc_x;
+  float loc_y;
+
+  float loc_tx;
+  float loc_ty;
+
+  int   qubo_solution_num = sol_num;
+  
+  for(int i = 1; i<= importer.num_node; i++){
+      fill(0);
+      int map_i = mapping_table[i];
+      loc_x = importer.node_loc_arr[map_i].loc_x;
+      loc_y = importer.node_loc_arr[map_i].loc_y;
+
+      loc_tx = importer.node_loc_arr[map_i].txt_x;
+      loc_ty = importer.node_loc_arr[map_i].txt_y;
+
+      // update offset for drawing solution #1, #2
+      loc_x = loc_x + offset_x;
+      loc_y = loc_y + offset_y;
+
+      loc_tx = loc_tx + offset_x;
+      loc_ty = loc_ty + offset_y;
+
+      // Node Drawing
+      if(mode == 1) {
+	  fill(0, 0, 0);   // Black
+	  stroke(0);       // Black Line
+	  strokeWeight(0); // 
+	  ellipse(loc_x, loc_y , 25, 25);
+      }
+      else if(mode == 2) {
+	  if(solution_qubo[qubo_solution_num][i] == -1) {
+	      fill(255, 0, 0); // Red
+	      stroke(0);       // Black Line
+	      strokeWeight(0); // 
+	      ellipse(loc_x, loc_y , 25, 25);
+	  }
+	  else if(solution_qubo[qubo_solution_num][i] == 1) {
+	      fill(0, 0, 255); // Blue
+	      stroke(0);       // Black Line
+	      strokeWeight(0); // 
+	      ellipse(loc_x, loc_y , 25, 25);
+	  }
+      }
+      else if(mode == 3) {
+	  if(solution_cobi[0][i] == -1) {
+	      fill(255, 0, 0); // Red
+	      if(solution_qubo[qubo_solution_num][i] != solution_cobi[0][i]) { // difference 
+		  stroke(255,255,0);       // Yellow line
+		  strokeWeight(10); 
+	      }
+	      else {
+		  stroke(0);       // Black Line
+		  strokeWeight(0); //
+	      }
+	      ellipse(loc_x, loc_y , 25, 25);
+	  }
+	  else if(solution_cobi[0][i] == 1) {
+	      fill(0, 0, 255); // Blue
+	      if(solution_qubo[qubo_solution_num][i] != solution_cobi[0][i]) { // difference 
+		  stroke(255,255,0);       // Yellow line
+		  strokeWeight(10); 
+	      }
+	      else {
+		  stroke(0);       // Black Line
+		  strokeWeight(0); //
+	      }
+	      ellipse(loc_x, loc_y , 25, 25);
+	  }	  
+      }
+      
+
+      // Text Drawing
+      fill(0, 0, 0); // Black
+      textSize(15); // 
+      textAlign(CENTER, CENTER);
+      if (i != 1)
+	  text("N" + String.format("%02d", i), loc_tx, loc_ty);
+      else
+	  fill(255, 0, 0);
+      	  text("N" + String.format("%02d", i), loc_tx, loc_ty);
+  }
+}
+
+
+void draw_edges(float offset_x, float offset_y, int mode){
+  float startWeight = 1;
+  float endWeight = 5;
+  color startColor = color(0, 0, 0);  
+
+  color endColor_plus  = color(255, 0, 0);
+  color endColor_minus = color(0, 0, 255);
+  color lineColor = color(0, 0, 0);
+
+  float loc_x_ni;
+  float loc_y_ni;
+
+  float loc_x_nj;
+  float loc_y_nj;
+	  
+  // Drawing Edges
+  for(int i = 1; i<= importer.num_node; i++){
+      for(int j = 1; j < i; j++){
+	  int pair_weight = inputGraphArray[i][j] + inputGraphArray[j][i];
+
+	  int map_ni = mapping_table[i];
+	  int map_nj = mapping_table[j];
+
+	  loc_x_ni = importer.node_loc_arr[map_ni].loc_x;
+	  loc_y_ni = importer.node_loc_arr[map_ni].loc_y;
+
+	  loc_x_nj = importer.node_loc_arr[map_nj].loc_x;
+	  loc_y_nj = importer.node_loc_arr[map_nj].loc_y;
+
+	  // update offset for drawing solution #1, #2
+	  loc_x_ni = loc_x_ni + offset_x;
+	  loc_y_ni = loc_y_ni + offset_y;
+		             
+	  loc_x_nj = loc_x_nj + offset_x;
+	  loc_y_nj = loc_y_nj + offset_y;
+
+	  
+	  // X-->X, Y-->Y
+	  if (pair_weight != 0) {
+	      if(mode == 1) {
+		  float weightValue = abs(pair_weight)/14.0;
+		  float weight = startWeight + weightValue * (endWeight - startWeight);
+		  //color lineColor = pair_weight < 0 ? startColor : endColor;
+		  if(pair_weight>0)
+		      lineColor = lerpColor(startColor, endColor_plus, weightValue);
+		  if(pair_weight<0)
+		      lineColor = lerpColor(startColor, endColor_minus, weightValue);
+		  strokeWeight(weight);
+		  stroke(lineColor);
+	      }
+	      if(mode == 2) {
+		  lineColor = color(200, 200, 200);
+		  float weight = 1;
+		  strokeWeight(weight);
+		  stroke(lineColor);
+	      }
+
+	      if(mode == 3) {
+		  lineColor = color(200, 200, 200);
+		  float weight = 1;
+		  strokeWeight(weight);
+		  stroke(lineColor);
+	      }
+    
+	      line(loc_x_ni, loc_y_ni,  loc_x_nj, loc_y_nj);
+	  }
+      }
+  }
 }
