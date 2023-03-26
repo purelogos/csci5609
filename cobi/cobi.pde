@@ -31,6 +31,16 @@ int[][] solution_qubo     = new int[10][64];
 int[][] solution_cobi     = new int[10][64];
 
 int[]   mapping_table = new int[64];    // To change the order of nodes by filtering information (such as the sum of edge weights or the sign bit of a solution).
+
+int[][] flag_mouse_over         = new int[4][64];
+int[][] flag_mouse_click        = new int[4][64];
+int[][] flag_mouse_double_click = new int[4][64];
+
+
+// Distance between each graph
+int offset_pr1 = importer.r*2 + 100;
+int offset_pr2 = (importer.r*2 + 100) * 2;
+float node_radius = 25;
 // === PROCESSING BUILT-IN FUNCTIONS ===
 
 void setup() {
@@ -54,7 +64,7 @@ void setup() {
   k_node = cp5.addKnob("Node")
       .setPosition(50, 50)
       .setRange(3, 58)
-      .setValue(11)
+      .setValue(13)
       .setDragDirection(Knob.HORIZONTAL)
       .setNumberOfTickMarks(14)
       .setDecimalPrecision(0);
@@ -117,6 +127,15 @@ void setup() {
   
   mapping_table = importer.node_mapping_by_name(mapping_table);
 
+  for (int i = 0; i < 4; i++){
+      for (int j = 1; j < 64; j++){
+	  flag_mouse_over[i][j] = 0;         
+	  flag_mouse_click[i][j] = 0;        
+	  flag_mouse_double_click[i][j] =0;
+	  mapping_table[j] = j;
+      }
+  }
+
 }
 
 
@@ -135,27 +154,26 @@ void draw() {
   switch (node_sort) {
   case 0:
       // Execute task A
-      System.out.println("\nSequential");
+      //System.out.println("\nSequential");
       mapping_table = importer.node_mapping_by_name(mapping_table);
       break;
   case 1:
       // Execute task B
-      System.out.println("\nReverse");
+      //System.out.println("\nReverse");
       mapping_table = importer.node_mapping_by_reverse(mapping_table);
       break;
   case 2:
       // Execute task C
-      System.out.println("\nBy weights");
+      //System.out.println("\nBy weights");
       break;
   case 3:
       // Execute task C
-      System.out.println("\nBy Solution #1");
+      //System.out.println("\nBy Solution #1");
       break;
   case 4:
       // Execute task C
-      System.out.println("\nBy Solution #2");
+      //System.out.println("\nBy Solution #2");
       break;
-      
   }
 
   // Municipalities should highlight (i.e., change appearance in some way) whenever the mouse is hovering
@@ -186,8 +204,6 @@ void draw() {
   /////////////////////////////////////////////////////////////////////////////////
   // Solution #1
   // Drawing Nodes
-
-  int offset_pr1 = importer.r*2 + 100;
   draw_edges(0+offset_pr1,0, 2);                   // mode 2
   draw_nodes(0+offset_pr1,0, 2,solution_number );  // mode 2
 
@@ -195,8 +211,6 @@ void draw() {
   /////////////////////////////////////////////////////////////////////////////////
   // Solution #2
   // Drawing Nodes
-
-  int offset_pr2 = (importer.r*2 + 100) * 2;
   draw_edges(0+offset_pr2,0, 3);                   // mode 3
   draw_nodes(0+offset_pr2,0, 3, solution_number);  // mode 3
 
@@ -460,9 +474,6 @@ void buttonClicked() {
   solution_qubo   = importer.parse_qubo(solution_qubo, graph_folder + "1_solution_qubo.txt");   // Solution #1, has n solutions
   solution_cobi   = importer.parse_cobi(solution_cobi, graph_folder + "2_solution_cobi.txt");   // Solution #2, has 1 solution
 
-
-
-
   dropdown_sol.remove();
   // Create a new DropdownList object
   dropdown_sol = cp5.addDropdownList("Select Solution")
@@ -476,6 +487,15 @@ void buttonClicked() {
   }
   // Set the default value of the dropdown menu to the first option (A)
   dropdown_sol.setValue(0);
+
+  // reset previous clicked information
+  for (int i = 0; i < 4; i++){
+      for (int j = 1; j < 64; j++){
+	  flag_mouse_over[i][j] = 0;         
+	  flag_mouse_click[i][j] = 0;        
+	  flag_mouse_double_click[i][j] =0;
+      }
+  }
   
 }
 
@@ -488,6 +508,7 @@ void draw_nodes(float offset_x, float offset_y, int mode, int sol_num){
   float loc_ty;
 
   int   qubo_solution_num = sol_num;
+
   
   for(int i = 1; i<= importer.num_node; i++){
       fill(0);
@@ -505,51 +526,64 @@ void draw_nodes(float offset_x, float offset_y, int mode, int sol_num){
       loc_tx = loc_tx + offset_x;
       loc_ty = loc_ty + offset_y;
 
+      // Detect mouse over
+      float distance = dist(loc_x, loc_y, mouseX, mouseY);
+      float radius = node_radius;
+
+      if(distance <= radius/2){
+	  radius = node_radius * 2;
+	  flag_mouse_over[mode][i] = 1;
+      }
+      else {
+	  radius = node_radius;
+	  flag_mouse_over[mode][i] = 0;
+      }
+      
       // Node Drawing
       if(mode == 1) {
 	  fill(0, 0, 0);   // Black
 	  stroke(0);       // Black Line
 	  strokeWeight(0); // 
-	  ellipse(loc_x, loc_y , 25, 25);
+	  ellipse(loc_x, loc_y , radius, radius);
       }
       else if(mode == 2) {
 	  if(solution_qubo[qubo_solution_num][i] == -1) {
 	      fill(255, 0, 0); // Red
 	      stroke(0);       // Black Line
 	      strokeWeight(0); // 
-	      ellipse(loc_x, loc_y , 25, 25);
+	      ellipse(loc_x, loc_y , radius, radius);
 	  }
 	  else if(solution_qubo[qubo_solution_num][i] == 1) {
 	      fill(0, 0, 255); // Blue
 	      stroke(0);       // Black Line
 	      strokeWeight(0); // 
-	      ellipse(loc_x, loc_y , 25, 25);
+	      ellipse(loc_x, loc_y , radius, radius);
 	  }
       }
       else if(mode == 3) {
 	  if(solution_cobi[0][i] == -1) {
 	      fill(255, 0, 0); // Red
 	      if(solution_qubo[qubo_solution_num][i] != solution_cobi[0][i]) { // difference 
-		  stroke(255,255,0);       // Yellow line
+		  stroke(255,120,0);       // Yellow line
 		  strokeWeight(10); 
 	      }
 	      else {
 		  stroke(0);       // Black Line
 		  strokeWeight(0); //
 	      }
-	      ellipse(loc_x, loc_y , 25, 25);
+	      ellipse(loc_x, loc_y , radius, radius);
 	  }
 	  else if(solution_cobi[0][i] == 1) {
 	      fill(0, 0, 255); // Blue
 	      if(solution_qubo[qubo_solution_num][i] != solution_cobi[0][i]) { // difference 
-		  stroke(255,255,0);       // Yellow line
+		  stroke(255,120,0);       // Yellow line
 		  strokeWeight(10); 
 	      }
 	      else {
 		  stroke(0);       // Black Line
 		  strokeWeight(0); //
 	      }
-	      ellipse(loc_x, loc_y , 25, 25);
+	      ellipse(loc_x, loc_y , radius, radius);
 	  }	  
       }
       
@@ -620,6 +654,18 @@ void draw_edges(float offset_x, float offset_y, int mode){
 	      if(mode == 2) {
 		  lineColor = color(200, 200, 200);
 		  float weight = 1;
+		  if(flag_mouse_over[mode][i] == 1 || flag_mouse_over[mode][j] == 1 || flag_mouse_click[mode][i] == 1 || flag_mouse_click[mode][j] == 1){   // mouse over || mouse clicked
+		      float weightValue = abs(pair_weight)/14.0;
+		      weight = startWeight + weightValue * (endWeight - startWeight);
+		      //color lineColor = pair_weight < 0 ? startColor : endColor;
+		      if(pair_weight>0)
+			  lineColor = lerpColor(startColor, endColor_plus, weightValue);
+		      if(pair_weight<0)
+			  lineColor = lerpColor(startColor, endColor_minus, weightValue);
+		  }
+		  else {
+
+		  }
 		  strokeWeight(weight);
 		  stroke(lineColor);
 	      }
@@ -627,12 +673,84 @@ void draw_edges(float offset_x, float offset_y, int mode){
 	      if(mode == 3) {
 		  lineColor = color(200, 200, 200);
 		  float weight = 1;
+		  if(flag_mouse_over[mode][i] == 1 || flag_mouse_over[mode][j] == 1 || flag_mouse_click[mode][i] == 1 || flag_mouse_click[mode][j] == 1){   // mouse over || mouse clicked
+		      float weightValue = abs(pair_weight)/14.0;
+		      weight = startWeight + weightValue * (endWeight - startWeight);
+		      //color lineColor = pair_weight < 0 ? startColor : endColor;
+		      if(pair_weight>0)
+			  lineColor = lerpColor(startColor, endColor_plus, weightValue);
+		      if(pair_weight<0)
+			  lineColor = lerpColor(startColor, endColor_minus, weightValue);
+		  }
+		  else {
+
+		  }
 		  strokeWeight(weight);
 		  stroke(lineColor);
 	      }
     
 	      line(loc_x_ni, loc_y_ni,  loc_x_nj, loc_y_nj);
 	  }
+      }
+  }
+}
+
+
+
+void mouseClicked() {
+
+  float loc_x;
+  float loc_y;
+
+  float dis_x;
+  float dis_y;
+
+
+
+  if(importer.num_node > 0) {  // after drawing graph
+      for(int i = 1; i<= importer.num_node; i++){
+
+
+	  int map_i = mapping_table[i];
+	  loc_x = importer.node_loc_arr[map_i].loc_x;
+	  loc_y = importer.node_loc_arr[map_i].loc_y;
+
+	  // Problem Graph
+	  dis_x = loc_x + 0;
+	  dis_y = loc_y + 0;
+
+	  float d = dist(mouseX, mouseY, dis_x, dis_y);
+	  if (d < node_radius/2) { // if mouse is clicking on the node
+	      flag_mouse_click[1][i] = ~flag_mouse_click[1][i];     // invert flag
+	  }
+
+	  // Solution #1
+	  dis_x = loc_x + offset_pr1;
+	  dis_y = loc_y;
+
+	  d = dist(mouseX, mouseY, dis_x, dis_y);
+
+	  if (d < node_radius/2) { // if mouse is clicking on the node
+	      if(flag_mouse_click[2][i] == 0)
+		  flag_mouse_click[2][i] = 1;
+	      else
+		  flag_mouse_click[2][i] = 0;
+	      
+	  }
+
+	  // Solution #2
+	  dis_x = loc_x + offset_pr2;
+	  dis_y = loc_y;
+
+	  d = dist(mouseX, mouseY, dis_x, dis_y);
+	  if (d < node_radius/2) { // if mouse is clicking on the node
+	      if(flag_mouse_click[3][i] == 0)
+		  flag_mouse_click[3][i] = 1;
+	      else
+		  flag_mouse_click[3][i] = 0;
+	      println("mouse clicked"); 
+	  }
+      
       }
   }
 }
