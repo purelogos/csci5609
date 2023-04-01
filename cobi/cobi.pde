@@ -38,8 +38,8 @@ int[][] flag_mouse_double_click = new int[4][64];
 
 
 // Distance between each graph
-int offset_pr1 = importer.r*2 + 100;
-int offset_pr2 = (importer.r*2 + 100) * 2;
+int offset_pr1 = 640; // importer.r*2 + 100;
+int offset_pr2 = 1280; //(importer.r*2 + 100) * 2;
 float node_radius = 25;
 // === PROCESSING BUILT-IN FUNCTIONS ===
 int solution_number = 0;
@@ -105,7 +105,7 @@ void setup() {
   
   // Create a new DropdownList object
   dropdown = cp5.addDropdownList("Sort")
-          .setPosition(50, 200)
+          .setPosition(240, 55)
           .setSize(150,150)
           ;
 
@@ -113,7 +113,7 @@ void setup() {
 
   // create button with a rectangular shape
   rectButton = cp5.addButton("Load Graph")
-      .setPosition(50, 125)
+      .setPosition(70, 160)
       .setSize(100, 50);
 
   // add callback function for button
@@ -137,8 +137,8 @@ void setup() {
 
   // Create a new DropdownList object for qubo solution
   dropdown_sol = cp5.addDropdownList("Select Solution")
-      .setPosition(350, 200)
-      .setSize(200,200)
+      .setPosition(width/3+20, 50)
+      .setSize(150,150)
       ;
 
   dropdown_sol.addItem("Select Solution : 0" , 0);
@@ -174,7 +174,7 @@ void draw() {
   // over them so the user knows something will happen if they click.  If they do click while a municipality
   // is highlighted, then that municipality becomes the selectedMunicipality and the visualization should
   // update to show kinship relationships for it.
-  highlightedMunicipality = getMunicipalityUnderMouse();
+  //highlightedMunicipality = getMunicipalityUnderMouse();
   
   // draw the bounds of the map
   // fill(250);
@@ -185,6 +185,94 @@ void draw() {
   // float mapX2 = panZoomMap.longitudeToScreenX(163.1);
   // float mapY2 = panZoomMap.latitudeToScreenY(10.0);
   // rect(mapX1, mapY1, mapX2, mapY2);
+
+  // First Pannel
+  fill(255);
+  stroke(0);       
+  strokeWeight(0); 
+  rect(0,0, width, 280);
+
+  // Problem Pannel title
+  fill(245);
+  stroke(0);       // Black Line
+  strokeWeight(0); //
+  rect(0,260, width/3, 20);
+  rect(0,280, width/3, 20);
+  
+  // Solution1 Pannel title
+  fill(245);
+  stroke(0);       // Black Line
+  strokeWeight(0); //
+  rect(width/3,260, width/3, 20);
+  rect(width/3,280, width/3, 20);
+  
+  // Solution1 Pannel title
+  fill(245);
+  stroke(0);       // Black Line
+  strokeWeight(0); //
+  rect(width*2/3,260, width/3, 20);
+  rect(width*2/3,280, width/3, 20);
+
+  // Problem Pannel 
+  fill(250);
+  stroke(0);       // Black Line
+  strokeWeight(0); //
+  rect(0,300,       width/3, height-300);
+
+  // Solution1 Pannel 
+  fill(250);
+  stroke(0);       // Black Line
+  strokeWeight(0); //
+  rect(width/3,300, width/3, height-300);
+
+  // Solution1 Pannel 
+  fill(250);
+  stroke(0);       // Black Line
+  strokeWeight(0); //
+  rect(width*2/3,300,width/3,height-300);
+  
+  
+  fill(0);
+  stroke(111, 87, 0);
+  textSize(20);
+  textAlign(LEFT, BOTTOM);
+  text("Ising Problem : " + mouseX + "," + mouseY,  mouseX, mouseY);
+
+
+  fill(0);
+  stroke(111, 87, 0);
+  textSize(20);
+  textAlign(LEFT, BOTTOM);
+  text("Problem Selecter :" , 45,40);
+
+  fill(0);
+  stroke(111, 87, 0);
+  textSize(20);
+  textAlign(LEFT, BOTTOM);
+  text("Problem Loader :" , 45,155);
+
+  fill(0);
+  stroke(111, 87, 0);
+  textSize(20);
+  textAlign(LEFT, BOTTOM);
+  text("Sorting Selector for Analysis :" , 240, 40);  
+
+  fill(0);
+  stroke(111, 87, 0);
+  textSize(20);
+  textAlign(LEFT, BOTTOM);
+  text("Golden Solution Selector :" , 650, 40); 
+
+
+
+  
+  fill(0);
+  stroke(111, 87, 0);
+  textSize(20);
+  textAlign(CENTER, BOTTOM);
+  text("[Graph Representation of the Ising Problem]" ,320, 283);    
+
+
 
   
   /////////////////////////////////////////////////////////////////////////////////
@@ -471,7 +559,7 @@ void buttonClicked() {
   dropdown_sol.remove();
   // Create a new DropdownList object
   dropdown_sol = cp5.addDropdownList("Select Solution")
-          .setPosition(350, 200)
+          .setPosition(width/3+20, 50)
           .setSize(150,150)
           ;
 
@@ -647,11 +735,12 @@ void draw_nodes(float offset_x, float offset_y, int mode, int sol_num){
       }
   }
 
+  fill(0);
 
   // Bar chart drawing under the graph
   float barWidth = 20;      // Width of each bar
   float barHeight = 0;
-  float bar_x = offset_x + 150; // Starting x-coordinate for bars
+  float bar_x = offset_x + 75; // Starting x-coordinate for bars
 
   float maxVal = -255; // Find max values
   float[] normalizedValues = new float[64]; 
@@ -664,7 +753,7 @@ void draw_nodes(float offset_x, float offset_y, int mode, int sol_num){
   for (int i = 1; i <= importer.num_node; i++) {
       if(node_sort == 0 || node_sort == 1) {                            // Sequential, Reverse
 	  values[i] = importer.node_info_arr[i].num_of_connected_nodes;
-	  title_of_bar = "Number of connected nodes\n (Top 15 Nodes)";
+	  title_of_bar = "Number of connected nodes\n (Top 20 Nodes)";
 	  if(maxVal < values[i]){
 	      maxVal = values[i];
 	  }
@@ -675,7 +764,7 @@ void draw_nodes(float offset_x, float offset_y, int mode, int sol_num){
 
       else if(node_sort == 2) {                                        // 
 	  values[i] = importer.node_info_arr[i].connected_edge_sum;
-	  title_of_bar = "Sum of Edge Weights \n (Top 15 Nodes)";
+	  title_of_bar = "Sum of Edge Weights \n (Top 20 Nodes)";
 	  if(maxVal < values[i]){
 	      maxVal = values[i];
 	  }
@@ -686,7 +775,7 @@ void draw_nodes(float offset_x, float offset_y, int mode, int sol_num){
 
       else if(node_sort == 3) {                                        // 
 	  values[i] = importer.node_info_arr[i].connected_edge_sum_abs;
-	  title_of_bar = "Sum of Edge Weights(ABS) \n (Top 15 Nodes)";
+	  title_of_bar = "Sum of Edge Weights(ABS) \n (Top 20 Nodes)";
 	  if(maxVal < values[i]){
 	      maxVal = values[i];
 	  }
@@ -701,7 +790,7 @@ void draw_nodes(float offset_x, float offset_y, int mode, int sol_num){
       normalizedValues[i] = values[i] / (float)maxVal; // Normalization
   }
 
-  for (int i = 1; (i <= importer.num_node) && (i <= 15 ); i++) {   // run order
+  for (int i = 1; (i <= importer.num_node) && (i < 20 ); i++) {   // run order
       // Print Graph based on mapping order
 
       int map_i=0;
@@ -752,11 +841,11 @@ void draw_nodes(float offset_x, float offset_y, int mode, int sol_num){
       bar_x += barWidth + 10; // Increase x-coordinate for next bar
   }
   textSize(20);
-  translate(offset_x+100, 950);
+  translate(offset_x+30, 950);
   rotate(-HALF_PI);
   text(title_of_bar, 0,0);
   rotate(+HALF_PI);
-  translate(-(offset_x+100), -950);  
+  translate(-(offset_x+30), -950);  
 
 }
 

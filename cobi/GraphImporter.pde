@@ -68,7 +68,7 @@ public class GraphImporter {
 
     node_info[] node_info_arr = new node_info[64];
     // Centroid of circle
-    int cx = 350;
+    int cx = 320;
     int cy = 600;
 
     // Radious of circle
