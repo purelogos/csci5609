@@ -158,7 +158,7 @@ public class GraphImporter {
 	
 	// Calcuating node location
 	for (int i = 1; i <= this.num_node; i++) {
-	    float angle = i * TWO_PI / this.num_node; // Angle
+	    float angle = ((float) i - 1) * TWO_PI / this.num_node - HALF_PI; // Angle
 	    float x = cx + r * cos(angle); // x 
 	    float y = cy + r * sin(angle); // y
 

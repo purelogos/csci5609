@@ -30,6 +30,9 @@ int[][] inputGraphArray = new int[64][64];
 int[][] solution_qubo     = new int[10][64];
 int[][] solution_cobi     = new int[10][64];
 
+int[] ham_qubo     = new int[10];
+int[] ham_cobi     = new int[10];
+
 int[]   mapping_table = new int[64];    // To change the order of nodes by filtering information (such as the sum of edge weights or the sign bit of a solution).
 
 int[][] flag_mouse_over         = new int[4][64];
@@ -44,6 +47,10 @@ float node_radius = 25;
 // === PROCESSING BUILT-IN FUNCTIONS ===
 int solution_number = 0;
 int node_sort = 0; 
+
+int last_clicked_node = 0;
+int last_clicked_node_pre = 0;
+int mouse_over_node = 0;
 
 void setup() {
   // size of the graphics window
@@ -236,7 +243,7 @@ void draw() {
   stroke(111, 87, 0);
   textSize(20);
   textAlign(LEFT, BOTTOM);
-  text("Ising Problem : " + mouseX + "," + mouseY,  mouseX, mouseY);
+  text("Ising Problem : " + mouseX + "," + mouseY + "\n Ham : " + ham_qubo[solution_number],  mouseX, mouseY);
 
 
   fill(0);
@@ -270,11 +277,46 @@ void draw() {
   stroke(111, 87, 0);
   textSize(20);
   textAlign(CENTER, BOTTOM);
-  text("[Graph Representation of the Ising Problem]" ,320, 283);    
+  text("Graph Representation of the Ising Problem" ,320, 283);    
+
+  fill(0);
+  stroke(111, 87, 0);
+  textSize(20);
+  textAlign(CENTER, BOTTOM);
+  text("The Golden Solution for Optimizing Ising Problem" ,960, 283);    
+
+  fill(0);
+  stroke(111, 87, 0);
+  textSize(20);
+  textAlign(CENTER, BOTTOM);
+  text("Results of Measurements Obtained Using Hardware (UMN VLSI Lab)" ,1600, 283);    
 
 
+  if(last_clicked_node != 0){
+	  fill(#006400);
+	  textAlign(LEFT, BOTTOM);
+	  textSize(17); // 
+	  text("Node ID :" + str(importer.node_info_arr[last_clicked_node].node_id)                      , width*2/3+30, 50   );
+	  text("Num of linked nodes :" + importer.node_info_arr[last_clicked_node].num_of_connected_nodes, width*2/3+30, 50+15);
+	  text("Linked Nodes " + importer.node_info_arr[last_clicked_node].connected_node_text           , width*2/3+30, 50+30);
+	  text("Linked Edges " + importer.node_info_arr[last_clicked_node].connected_edge_text           , width*2/3+30, 50+45);
+	  
+	  text("Sum of edges :" + str(importer.node_info_arr[last_clicked_node].connected_edge_sum)             , width*2/3+30, 50+60);
+	  text("Sum of edges(ABS) :" + str(importer.node_info_arr[last_clicked_node].connected_edge_sum_abs)    , width*2/3+30, 50+75);
+  }
 
-  
+  if(last_clicked_node_pre != 0){
+	  fill(#006400);
+	  textAlign(LEFT, BOTTOM);
+	  textSize(17); // 
+	  text("Node ID :" + str(importer.node_info_arr[last_clicked_node_pre].node_id)                      , width*2/3+30, 150   );
+	  text("Num of linked nodes :" + importer.node_info_arr[last_clicked_node_pre].num_of_connected_nodes, width*2/3+30, 150+15);
+	  text("Linked Nodes " + importer.node_info_arr[last_clicked_node_pre].connected_node_text           , width*2/3+30, 150+30);
+	  text("Linked Edges " + importer.node_info_arr[last_clicked_node_pre].connected_edge_text           , width*2/3+30, 150+45);
+	  
+	  text("Sum of edges :" + str(importer.node_info_arr[last_clicked_node_pre].connected_edge_sum)             , width*2/3+30, 150+60);
+	  text("Sum of edges(ABS) :" + str(importer.node_info_arr[last_clicked_node_pre].connected_edge_sum_abs)    , width*2/3+30, 150+75);
+  }
   /////////////////////////////////////////////////////////////////////////////////
   // Ising Problem 
   // Drawing Nodes
@@ -579,6 +621,8 @@ void buttonClicked() {
       }
   }
 
+  last_clicked_node = 0;
+  last_clicked_node_pre = 0;
 
 
 
@@ -672,12 +716,22 @@ void draw_nodes(float offset_x, float offset_y, int mode, int sol_num){
 	      stroke(0);       // Black Line
 	      strokeWeight(0); // 
 	      ellipse(loc_x, loc_y , radius, radius);
+
+	      fill(255); // Black
+	      textAlign(CENTER, CENTER);
+	      textSize(16); // 
+	      text("-1", loc_x, loc_y);
 	  }
 	  else if(solution_qubo[qubo_solution_num][i] == 1) {
 	      fill(0, 0, 255); // Blue
 	      stroke(0);       // Black Line
 	      strokeWeight(0); // 
 	      ellipse(loc_x, loc_y , radius, radius);
+
+	      fill(255); // White
+	      textAlign(CENTER, CENTER);
+	      textSize(16); // 
+	      text("+1", loc_x, loc_y);
 	  }
       }
       else if(mode == 3) {
@@ -725,6 +779,7 @@ void draw_nodes(float offset_x, float offset_y, int mode, int sol_num){
       if(flag_mouse_over[mode][i] == 1){
 	  fill(#006400);
 	  textAlign(LEFT, BOTTOM);
+	  textSize(17); // 
 	  text("Node ID :" + str(importer.node_info_arr[i].node_id)    , mouseX+30, mouseY);
 	  text("Num of linked nodes :" + importer.node_info_arr[i].num_of_connected_nodes, mouseX+30, mouseY+15);
 	  text("Linked Nodes " + importer.node_info_arr[i].connected_node_text    , mouseX+30, mouseY+30);
@@ -818,6 +873,7 @@ void draw_nodes(float offset_x, float offset_y, int mode, int sol_num){
 	  rect(bar_x, height -50 - barHeight, barWidth, barHeight);                      // Draw bar
 	  text("N" + str(importer.node_info_arr[map_i].node_id), bar_x+10, height -40);         // Draw text      
 	  text(str(values[i]),                                   bar_x+10, height -20);         // Draw text
+
       }
       else {
 	  if(values[i]>=0){
@@ -834,13 +890,60 @@ void draw_nodes(float offset_x, float offset_y, int mode, int sol_num){
 	      text("N" + str(importer.node_info_arr[map_i].node_id), bar_x+10, height -40);         // Draw text      
 	      text(str(values[i]),                                   bar_x+10, height -20);         // Draw text
 	  }
-	  
+
       }
       
+      // print solutions 
+      if(mode == 2){
+	  fill(0);
+	  stroke(111, 87, 0);
+	  textSize(20);
+	  textAlign(LEFT, BOTTOM);
+	  String sign = (solution_qubo[solution_number][map_i] < 0) ? "" : "+";
+	  if( i == 1) {
+	      text("SOL  =  { ", width/3+10, 303);
+	      text(sign + str(solution_qubo[solution_number][map_i]), bar_x+10, 303);         // Draw text      	      
+	  }
+	  else if( i < 18 ){
+	      text("," + sign + str(solution_qubo[solution_number][map_i]), bar_x+10, 303);         // Draw text      
+	  }
+	  else if ( i == 18 ) {
+	      text("..", bar_x+10, 303);         // Draw text      
+	  }
+
+	  if ( i == importer.num_node || i == 18) {
+	      text("}", bar_x+35, 303);
+	  }
+
+      }
+      if(mode == 3){
+	  fill(0);
+	  stroke(111, 87, 0);
+	  textSize(20);
+	  textAlign(LEFT, BOTTOM);
+	  String sign = (solution_cobi[0][map_i] < 0) ? "" : "+";
+	  if( i == 1) {
+	      text("MEAS =  { ", width*2/3+10, 303);
+	      text(sign + str(solution_cobi[0][map_i]), bar_x+10, 303);         // Draw text      	      
+	  }
+	  else if( i < 18 ){
+	      text("," + sign + str(solution_cobi[0][map_i]), bar_x+10, 303);         // Draw text      
+	  }
+	  else if ( i == 18 ) {
+	      text("..", bar_x+10, 303);         // Draw text      
+	  }
+
+	  if ( i == importer.num_node || i == 18) {
+	      text("}", bar_x+35, 303);
+	  }
+
+      }
+
       
       bar_x += barWidth + 10; // Increase x-coordinate for next bar
   }
   textSize(20);
+  textAlign(CENTER, CENTER);
   translate(offset_x+30, 950);
   rotate(-HALF_PI);
   text(title_of_bar, 0,0);
@@ -986,8 +1089,14 @@ void mouseClicked() {
 	  d = dist(mouseX, mouseY, dis_x, dis_y);
 
 	  if (d < node_radius/2) { // if mouse is clicking on the node
-	      if(flag_mouse_click[2][i] == 0)
+	      if(flag_mouse_click[2][i] == 0) {
 		  flag_mouse_click[2][i] = 1;
+		  if(last_clicked_node != last_clicked_node_pre){
+		      last_clicked_node_pre = last_clicked_node;
+		  }
+		  last_clicked_node = i;
+	      }
+	      
 	      else
 		  flag_mouse_click[2][i] = 0;
 	      
@@ -999,8 +1108,15 @@ void mouseClicked() {
 
 	  d = dist(mouseX, mouseY, dis_x, dis_y);
 	  if (d < node_radius/2) { // if mouse is clicking on the node
-	      if(flag_mouse_click[3][i] == 0)
+	      if(flag_mouse_click[3][i] == 0) {
 		  flag_mouse_click[3][i] = 1;
+		  if(last_clicked_node != last_clicked_node_pre){
+		      last_clicked_node_pre = last_clicked_node;
+		  }
+		  last_clicked_node = i;
+
+
+	      }
 	      else
 		  flag_mouse_click[3][i] = 0;
 	      println("mouse clicked"); 
@@ -1008,4 +1124,43 @@ void mouseClicked() {
       
       }
   }
+
+  // update hamiltonian
+  hamiltonian();
+}
+
+// int[][] inputGraphArray = new int[64][64];
+// int[][] solution_qubo     = new int[10][64];
+// int[][] solution_cobi     = new int[10][64];
+// 
+// int[] ham_qubo     = new int[10];
+// int[] ham_cobi     = new int[10];
+void hamiltonian(){
+
+    int results_qubo = 0;
+    int results_cobi = 0;
+    for(int i=1 ; i <= importer.num_node; i++){
+	for(int j=1 ; j < i; j++){
+	    // same sign
+	    if(solution_qubo[solution_number][i] == solution_qubo[solution_number][j]) {
+		results_qubo = results_qubo - (inputGraphArray[i][j] + inputGraphArray[j][i]);
+	    }
+	    // different sign
+	    else {
+		results_qubo = results_qubo + (inputGraphArray[i][j] + inputGraphArray[j][i]);
+	    }
+
+	    // same sign
+	    if(solution_cobi[0][i] == solution_cobi[0][j]) {
+		results_cobi = results_cobi - (inputGraphArray[i][j] + inputGraphArray[j][i]);
+	    }
+	    // different sign
+	    else {
+		results_cobi = results_cobi + (inputGraphArray[i][j] + inputGraphArray[j][i]);
+	    }
+	}	    
+    }
+    ham_qubo[solution_number] = results_qubo;
+    ham_cobi[0]               = results_cobi;
+    
 }
