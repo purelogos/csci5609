@@ -42,6 +42,8 @@ int offset_pr1 = importer.r*2 + 100;
 int offset_pr2 = (importer.r*2 + 100) * 2;
 float node_radius = 25;
 // === PROCESSING BUILT-IN FUNCTIONS ===
+int solution_number = 0;
+int node_sort = 0; 
 
 void setup() {
   // size of the graphics window
@@ -49,15 +51,23 @@ void setup() {
 
   // these coordinates define a rectangular region for the map that happens to be
   // centered around Micronesia
-  panZoomMap = new PanZoomMap(5.2, 138, 10.0, 163.1);
+  //panZoomMap = new PanZoomMap(5.2, 138, 10.0, 163.1);
   
   // these initial values provide a good view of Chuuk Lagoon, but you can
   // comment these out to start with all of the data on the screen
-  panZoomMap.scale = 87430.2;
-  panZoomMap.translateX = -47255.832;
-  panZoomMap.translateY = -43944.914;
+  //panZoomMap.scale = 87430.2;
+  //panZoomMap.translateX = -47255.832;
+  //panZoomMap.translateY = -43944.914;
   
   labelFont = loadFont("Futura-Medium-18.vlw");
+
+  fill(111, 87, 0);
+  textAlign(CENTER, CENTER);
+  text("Data Loader", 50, 50);
+
+
+  //rect(100, 75, 400, 400);
+  
 
   // Drop down menu
   cp5 = new ControlP5(this);
@@ -85,12 +95,21 @@ void setup() {
       .setNumberOfTickMarks(3)
       .setDecimalPrecision(0);
 
+  k_node.getCaptionLabel().setColor(0);
+  k_density.getCaptionLabel().setColor(0);
+  k_run.getCaptionLabel().setColor(0);
+
+  k_node.getCaptionLabel().setFont(createFont("Arial", 12, true));
+  k_density.getCaptionLabel().setFont(createFont("Arial", 12, true));
+  k_run.getCaptionLabel().setFont(createFont("Arial", 12, true));
+  
   // Create a new DropdownList object
   dropdown = cp5.addDropdownList("Sort")
           .setPosition(50, 200)
           .setSize(150,150)
           ;
 
+  //dropdown.setFont(createFont("Arial", 10));
 
   // create button with a rectangular shape
   rectButton = cp5.addButton("Load Graph")
@@ -105,11 +124,13 @@ void setup() {
   });
 
   // Add three options to the dropdown menu
-  dropdown.addItem("Sequential", 0);
+  dropdown.addItem("Sort by Sequential", 0);
   dropdown.addItem("Reverse",    1);
-  dropdown.addItem("(T.B.D) By sum of edge wegits", 2);
-  dropdown.addItem("(T.B.D) By spin values in solution #1", 3);
-  dropdown.addItem("(T.B.D) By spin values in solution #2", 4);
+  dropdown.addItem("Sort by Edge Weight Sum", 2);
+  dropdown.addItem("Sort by Edge Weight Sum ABS", 3);
+  dropdown.addItem("By spin values in solution #1", 4);
+  dropdown.addItem("By spin values in solution #2", 5);
+  dropdown.addItem("(T.B.D) By spin values in solution #2", 6);
 
   // Set the default value of the dropdown menu to the first option (A)
   dropdown.setValue(0);
@@ -147,35 +168,8 @@ void draw() {
   density = round(k_density.getValue()*10) / 10.0;
   run_num = (int) k_run.getValue();
   
-  int solution_number = (int) dropdown_sol.getValue();
-
-  // Execute different tasks based on the user's selection
-  int node_sort = (int) dropdown.getValue();
-  switch (node_sort) {
-  case 0:
-      // Execute task A
-      //System.out.println("\nSequential");
-      mapping_table = importer.node_mapping_by_name(mapping_table);
-      break;
-  case 1:
-      // Execute task B
-      //System.out.println("\nReverse");
-      mapping_table = importer.node_mapping_by_reverse(mapping_table);
-      break;
-  case 2:
-      // Execute task C
-      //System.out.println("\nBy weights");
-      break;
-  case 3:
-      // Execute task C
-      //System.out.println("\nBy Solution #1");
-      break;
-  case 4:
-      // Execute task C
-      //System.out.println("\nBy Solution #2");
-      break;
-  }
-
+  solution_number = (int) dropdown_sol.getValue();
+  
   // Municipalities should highlight (i.e., change appearance in some way) whenever the mouse is hovering
   // over them so the user knows something will happen if they click.  If they do click while a municipality
   // is highlighted, then that municipality becomes the selectedMunicipality and the visualization should
@@ -183,14 +177,14 @@ void draw() {
   highlightedMunicipality = getMunicipalityUnderMouse();
   
   // draw the bounds of the map
-  fill(250);
-  stroke(111, 87, 0);
-  rectMode(CORNERS);
-  float mapX1 = panZoomMap.longitudeToScreenX(138.0);
-  float mapY1 = panZoomMap.latitudeToScreenY(5.2);
-  float mapX2 = panZoomMap.longitudeToScreenX(163.1);
-  float mapY2 = panZoomMap.latitudeToScreenY(10.0);
-  rect(mapX1, mapY1, mapX2, mapY2);
+  // fill(250);
+  // stroke(111, 87, 0);
+  // rectMode(CORNERS);
+  // float mapX1 = panZoomMap.longitudeToScreenX(138.0);
+  // float mapY1 = panZoomMap.latitudeToScreenY(5.2);
+  // float mapX2 = panZoomMap.longitudeToScreenX(163.1);
+  // float mapY2 = panZoomMap.latitudeToScreenY(10.0);
+  // rect(mapX1, mapY1, mapX2, mapY2);
 
   
   /////////////////////////////////////////////////////////////////////////////////
@@ -496,6 +490,42 @@ void buttonClicked() {
 	  flag_mouse_double_click[i][j] =0;
       }
   }
+
+
+
+
+  // Execute different tasks based on the user's selection
+  node_sort = (int) dropdown.getValue();
+  switch (node_sort) {
+  case 0:
+      // Execute task A
+      //System.out.println("\nSequential");
+      mapping_table = importer.node_mapping_by_name(mapping_table);
+      break;
+  case 1:
+      // Execute task B
+      //System.out.println("\nReverse");
+      mapping_table = importer.node_mapping_by_reverse(mapping_table);
+      break;
+  case 2:
+      // Execute task C
+      mapping_table = importer.node_mapping_by_edge(mapping_table);
+      break;
+  case 3:
+      mapping_table = importer.node_mapping_by_edge_abs(mapping_table);
+      break;
+  case 4:
+      mapping_table = importer.node_mapping_by_spin_sol1(mapping_table);
+      break;
+  case 5:
+      mapping_table = importer.node_mapping_by_spin_sol2(mapping_table);
+      break;
+  case 6:
+      //mapping_table = importer.node_mapping_by_edge_abs(mapping_table);
+
+      break;
+  }
+
   
 }
 
@@ -513,11 +543,11 @@ void draw_nodes(float offset_x, float offset_y, int mode, int sol_num){
   for(int i = 1; i<= importer.num_node; i++){
       fill(0);
       int map_i = mapping_table[i];
-      loc_x = importer.node_loc_arr[map_i].loc_x;
-      loc_y = importer.node_loc_arr[map_i].loc_y;
+      loc_x = importer.node_info_arr[map_i].loc_x;
+      loc_y = importer.node_info_arr[map_i].loc_y;
 
-      loc_tx = importer.node_loc_arr[map_i].txt_x;
-      loc_ty = importer.node_loc_arr[map_i].txt_y;
+      loc_tx = importer.node_info_arr[map_i].txt_x;
+      loc_ty = importer.node_info_arr[map_i].txt_y;
 
       // update offset for drawing solution #1, #2
       loc_x = loc_x + offset_x;
@@ -533,6 +563,8 @@ void draw_nodes(float offset_x, float offset_y, int mode, int sol_num){
       if(distance <= radius/2){
 	  radius = node_radius * 2;
 	  flag_mouse_over[mode][i] = 1;
+
+
       }
       else {
 	  radius = node_radius;
@@ -585,6 +617,8 @@ void draw_nodes(float offset_x, float offset_y, int mode, int sol_num){
 	      }
 	      ellipse(loc_x, loc_y , radius, radius);
 	  }	  
+	  stroke(0);       // Black Line
+	  strokeWeight(0); //
       }
       
 
@@ -594,10 +628,136 @@ void draw_nodes(float offset_x, float offset_y, int mode, int sol_num){
       textAlign(CENTER, CENTER);
       if (i != 1)
 	  text("N" + String.format("%02d", i), loc_tx, loc_ty);
-      else
+      else {
 	  fill(255, 0, 0);
-      	  text("N" + String.format("%02d", i), loc_tx, loc_ty);
+	  text("N" + String.format("%02d", i), loc_tx, loc_ty);
+      }
+
+	  
+      if(flag_mouse_over[mode][i] == 1){
+	  fill(#006400);
+	  textAlign(LEFT, BOTTOM);
+	  text("Node ID :" + str(importer.node_info_arr[i].node_id)    , mouseX+30, mouseY);
+	  text("Num of linked nodes :" + importer.node_info_arr[i].num_of_connected_nodes, mouseX+30, mouseY+15);
+	  text("Linked Nodes " + importer.node_info_arr[i].connected_node_text    , mouseX+30, mouseY+30);
+	  text("Linked Edges " + importer.node_info_arr[i].connected_edge_text    , mouseX+30, mouseY+45);
+	  
+	  text("Sum of edges :" + str(importer.node_info_arr[i].connected_edge_sum)    , mouseX+30, mouseY+60);
+	  text("Sum of edges(ABS) :" + str(importer.node_info_arr[i].connected_edge_sum_abs)    , mouseX+30, mouseY+75);
+      }
   }
+
+
+  // Bar chart drawing under the graph
+  float barWidth = 20;      // Width of each bar
+  float barHeight = 0;
+  float bar_x = offset_x + 150; // Starting x-coordinate for bars
+
+  float maxVal = -255; // Find max values
+  float[] normalizedValues = new float[64]; 
+  float[] values           = new float[64];
+  String title_of_bar = "";
+
+  float has_negative = 0;  // positive : 0, negative : 1
+
+  // Assing value array
+  for (int i = 1; i <= importer.num_node; i++) {
+      if(node_sort == 0 || node_sort == 1) {                            // Sequential, Reverse
+	  values[i] = importer.node_info_arr[i].num_of_connected_nodes;
+	  title_of_bar = "Number of connected nodes\n (Top 15 Nodes)";
+	  if(maxVal < values[i]){
+	      maxVal = values[i];
+	  }
+	  if ( values[i] < 0) {
+	      has_negative = 1;
+	  }
+      }
+
+      else if(node_sort == 2) {                                        // 
+	  values[i] = importer.node_info_arr[i].connected_edge_sum;
+	  title_of_bar = "Sum of Edge Weights \n (Top 15 Nodes)";
+	  if(maxVal < values[i]){
+	      maxVal = values[i];
+	  }
+	  if ( values[i] < 0) {
+	      has_negative = 1;
+	  }
+      }
+
+      else if(node_sort == 3) {                                        // 
+	  values[i] = importer.node_info_arr[i].connected_edge_sum_abs;
+	  title_of_bar = "Sum of Edge Weights(ABS) \n (Top 15 Nodes)";
+	  if(maxVal < values[i]){
+	      maxVal = values[i];
+	  }
+	  if ( values[i] < 0) {
+	      has_negative = 1;
+	  }
+      }
+      
+  }
+  
+  for (int i = 1; i <= importer.num_node; i++) {
+      normalizedValues[i] = values[i] / (float)maxVal; // Normalization
+  }
+
+  for (int i = 1; (i <= importer.num_node) && (i <= 15 ); i++) {   // run order
+      // Print Graph based on mapping order
+
+      int map_i=0;
+      for (int j= 1; j<= importer.num_node; j++){
+	  if(i == importer.node_info_arr[j].order) {            // check sort order == run order
+	      map_i = importer.node_info_arr[j].node_id;                         // return node id
+	  }
+      }
+
+      if(mode == 3) {
+	  if(solution_qubo[qubo_solution_num][map_i] != solution_cobi[0][map_i]) { // difference 
+	      stroke(255,120,0);       // Yellow line
+	      strokeWeight(10); 
+	  }
+	  else {
+	      stroke(0);       // Black Line
+	      strokeWeight(0); //
+	  }
+      }
+
+      
+      if(has_negative == 0) {
+	  // Select node_sort mode::
+	  barHeight = map(normalizedValues[map_i], 0, 1, 0, 150); 
+	  rect(bar_x, height -50 - barHeight, barWidth, barHeight);                      // Draw bar
+	  text("N" + str(importer.node_info_arr[map_i].node_id), bar_x+10, height -40);         // Draw text      
+	  text(str(values[i]),                                   bar_x+10, height -20);         // Draw text
+      }
+      else {
+	  if(values[i]>=0){
+	      // Select node_sort mode::
+	      barHeight = map(normalizedValues[map_i], 0, 1, 0, 75); 
+	      rect(bar_x, height -125 - barHeight, barWidth, barHeight);                      // Draw bar
+	      text("N" + str(importer.node_info_arr[map_i].node_id), bar_x+10, height -40);         // Draw text      
+	      text(str(values[i]),                                   bar_x+10, height -20);         // Draw text
+	  }
+	   if(values[i]<0){
+	      // Select node_sort mode::
+	      barHeight = map(normalizedValues[map_i], 0, 1, 0, 75); 
+	      rect(bar_x, height -125 - barHeight, barWidth, barHeight);                      // Draw bar
+	      text("N" + str(importer.node_info_arr[map_i].node_id), bar_x+10, height -40);         // Draw text      
+	      text(str(values[i]),                                   bar_x+10, height -20);         // Draw text
+	  }
+	  
+      }
+      
+      
+      bar_x += barWidth + 10; // Increase x-coordinate for next bar
+  }
+  textSize(20);
+  translate(offset_x+100, 950);
+  rotate(-HALF_PI);
+  text(title_of_bar, 0,0);
+  rotate(+HALF_PI);
+  translate(-(offset_x+100), -950);  
+
 }
 
 
@@ -624,11 +784,11 @@ void draw_edges(float offset_x, float offset_y, int mode){
 	  int map_ni = mapping_table[i];
 	  int map_nj = mapping_table[j];
 
-	  loc_x_ni = importer.node_loc_arr[map_ni].loc_x;
-	  loc_y_ni = importer.node_loc_arr[map_ni].loc_y;
+	  loc_x_ni = importer.node_info_arr[map_ni].loc_x;
+	  loc_y_ni = importer.node_info_arr[map_ni].loc_y;
 
-	  loc_x_nj = importer.node_loc_arr[map_nj].loc_x;
-	  loc_y_nj = importer.node_loc_arr[map_nj].loc_y;
+	  loc_x_nj = importer.node_info_arr[map_nj].loc_x;
+	  loc_y_nj = importer.node_info_arr[map_nj].loc_y;
 
 	  // update offset for drawing solution #1, #2
 	  loc_x_ni = loc_x_ni + offset_x;
@@ -705,15 +865,21 @@ void mouseClicked() {
   float dis_x;
   float dis_y;
 
+  int select = (int) dropdown_sol.getValue();
 
+  println("mouse clicked");
+  println("Solution Number : " + str(select));
 
+  if(node_sort == 4) {
+        mapping_table = importer.node_mapping_by_spin_sol1(mapping_table);
+  }
   if(importer.num_node > 0) {  // after drawing graph
       for(int i = 1; i<= importer.num_node; i++){
 
 
 	  int map_i = mapping_table[i];
-	  loc_x = importer.node_loc_arr[map_i].loc_x;
-	  loc_y = importer.node_loc_arr[map_i].loc_y;
+	  loc_x = importer.node_info_arr[map_i].loc_x;
+	  loc_y = importer.node_info_arr[map_i].loc_y;
 
 	  // Problem Graph
 	  dis_x = loc_x + 0;
