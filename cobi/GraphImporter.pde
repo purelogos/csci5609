@@ -271,7 +271,8 @@ public class GraphImporter {
             int val = Integer.parseInt(colStrings[j].split(": ")[1]);
             int idx = Integer.parseInt(colStrings[j].split(": ")[0]);
             input_data_array[i][idx] = val;
-
+	    input_data_array[i+1][idx] = val;  // [1]
+	    
 	    this.node_info_arr[idx].spin_value_sol2 = val;
             println("arr[" + i + "][" + idx + "] = " + val);
 

@@ -37,6 +37,7 @@ int[]   mapping_table = new int[64];    // To change the order of nodes by filte
 
 int[][] flag_mouse_over         = new int[4][64];
 int[][] flag_mouse_click        = new int[4][64];
+int[][] flag_mouse_click_right  = new int[4][64];
 int[][] flag_mouse_double_click = new int[4][64];
 
 
@@ -56,13 +57,14 @@ void setup() {
   // size of the graphics window
   size(1920,1080);
 
-  labelFont = loadFont("Futura-Medium-18.vlw");
 
   fill(111, 87, 0);
   textAlign(CENTER, CENTER);
   text("Data Loader", 50, 50);
 
 
+
+  
   // Drop down menu
   cp5 = new ControlP5(this);
   k_node = cp5.addKnob("Node")
@@ -131,7 +133,7 @@ void setup() {
 
   // Create a new DropdownList object for qubo solution
   dropdown_sol = cp5.addDropdownList("Select Solution")
-      .setPosition(width/3+20, 50)
+      .setPosition(width/3+20, 180)
       .setSize(150,150)
       ;
 
@@ -146,6 +148,7 @@ void setup() {
       for (int j = 1; j < 64; j++){
 	  flag_mouse_over[i][j] = 0;         
 	  flag_mouse_click[i][j] = 0;        
+	  flag_mouse_click_right[i][j] = 0;        
 	  flag_mouse_double_click[i][j] =0;
 	  mapping_table[j] = j;
       }
@@ -215,7 +218,7 @@ void draw() {
   stroke(111, 87, 0);
   textSize(20);
   textAlign(LEFT, BOTTOM);
-  text("Ising Problem : " + mouseX + "," + mouseY + "\n Ham : " + ham_qubo[solution_number] + "\n Ham cobi" + ham_cobi[0],  mouseX, mouseY);
+  text("Ising Problem : " + mouseX + "," + mouseY,  mouseX, mouseY);
 
 
   fill(0);
@@ -236,11 +239,12 @@ void draw() {
   textAlign(LEFT, BOTTOM);
   text("Sorting Selector for Analysis :" , 240, 40);  
 
+
   fill(0);
   stroke(111, 87, 0);
   textSize(20);
   textAlign(LEFT, BOTTOM);
-  text("Golden Solution Selector :" , 650, 40); 
+  text("Golden Solution Selector :" , 650, 160); 
 
 
 
@@ -271,26 +275,82 @@ void draw() {
   textSize(30);
   textAlign(LEFT, BOTTOM);
   String formula = "H = - ∑ Spin(i)*Spin(j)*Edge(ij)";
-  text("Solution Quality : " + formula , 660, 150);    
+  text("Solution Quality : " + formula , 660, 50);    
 
   fill(0);
   stroke(111, 87, 0);
   textSize(20);
   textAlign(LEFT, BOTTOM);
-  text("Golden Solution" , 660, 180);    
+  text("Golden Solution" , 655, 82);    
 
 
   fill(0);
   stroke(111, 87, 0);
   textSize(20);
   textAlign(LEFT, BOTTOM);
-  text("Measurements Result" , 660, 220);    
+  text("Measurements Result" , 655, 122);    
+
+
+
+  for(int i = 1; i<=14; i++){
+      color endColor_plus  = color(0, 0, 255);
+      color endColor_minus = color(255, 0, 0);
+      float weightValue = i/14.0;
+      float startWeight = 1;
+      float endWeight = 5;
+      color startColor = color(0, 0, 100); 
+
+      color lineColor = lerpColor(startColor, endColor_plus, weightValue);
+      float weight = startWeight + weightValue * (endWeight - startWeight);
+
+      strokeWeight(weight);
+      stroke(lineColor);
+
+      text("+" + i, 455, 60+i*14);
+      line(405, 47+i*14, 445, 47+i*14);
+  }
+
+  for(int i = -1; i>=-14; i--){
+      color endColor_plus  = color(0, 0, 255);
+      color endColor_minus = color(255, 0, 0);
+      float weightValue = -1 * i/14.0;
+      float startWeight = 1;
+      float endWeight = 5;
+      color startColor = color(100, 0, 0); 
+
+      color lineColor = lerpColor(startColor, endColor_minus, weightValue);
+      float weight = startWeight + weightValue * (endWeight - startWeight);
+
+      strokeWeight(weight);
+      stroke(lineColor);
+
+      text("" + i, 570,   60-i*14);
+      line(520, 47-i*14, 560, 47-i*14);
+  }
+
+  strokeWeight(0);
+  stroke(0);
+
+
+//	
+//	if(mode == 1) {
+//			  float weightValue = abs(pair_weight)/14.0;
+//			  float weight = startWeight + weightValue * (endWeight - startWeight);
+//			  //color lineColor = pair_weight < 0 ? startColor : endColor;
+//			  if(pair_weight>0)
+//			      lineColor = lerpColor(startColor, endColor_plus, weightValue);
+//			  if(pair_weight<0)
+//			      lineColor = lerpColor(startColor, endColor_minus, weightValue);
+//			  strokeWeight(weight);
+//			  stroke(lineColor);
+//		      }
 
 
   if(last_clicked_node != 0){
 	  fill(#006400);
 	  textAlign(LEFT, BOTTOM);
-	  textSize(17); // 
+	  textSize(17); //
+
 	  text("Node ID :" + str(importer.node_info_arr[last_clicked_node].node_id)                      , width*2/3+30, 50   );
 	  text("Num of linked nodes :" + importer.node_info_arr[last_clicked_node].num_of_connected_nodes, width*2/3+30, 50+15);
 	  text("Linked Nodes " + importer.node_info_arr[last_clicked_node].connected_node_text           , width*2/3+30, 50+30);
@@ -314,14 +374,15 @@ void draw() {
   }
 
 
+
   /////////////////////////////////////////////////////////////////////////////////
   // Draw bar chart for comparing solution quality
 
   float barGap = 20;                   // gap between bars
-  float normalizedData = width/3 -200; // normalize the data
+  float normalizedData = width/3 -205; // normalize the data
   float barHeight = 20;   
   float xPos = width*1/3 + 205; 
-  float yPos = 160;       
+  float yPos = 60;       
 
   fill(0, 100, 200);      
   rect(xPos, yPos, normalizedData, barHeight); // draw the bar
@@ -613,10 +674,12 @@ void buttonClicked() {
   solution_qubo   = importer.parse_qubo(solution_qubo, graph_folder + "1_solution_qubo.txt");   // Solution #1, has n solutions
   solution_cobi   = importer.parse_cobi(solution_cobi, graph_folder + "2_solution_cobi.txt");   // Solution #2, has 1 solution
 
+
+  
   dropdown_sol.remove();
   // Create a new DropdownList object
   dropdown_sol = cp5.addDropdownList("Select Solution")
-          .setPosition(width/3+20, 50)
+          .setPosition(width/3+20, 180)
           .setSize(150,150)
           ;
 
@@ -631,7 +694,8 @@ void buttonClicked() {
   for (int i = 0; i < 4; i++){
       for (int j = 1; j < 64; j++){
 	  flag_mouse_over[i][j] = 0;         
-	  flag_mouse_click[i][j] = 0;        
+	  flag_mouse_click[i][j] = 0;
+	  flag_mouse_click_right[i][j] = 0;   
 	  flag_mouse_double_click[i][j] =0;
       }
   }
@@ -750,9 +814,9 @@ void draw_nodes(float offset_x, float offset_y, int mode, int sol_num){
 	  }
       }
       else if(mode == 3) {
-	  if(solution_cobi[0][i] == -1) {
+	  if(solution_cobi[1][i] == -1) {
 	      fill(255, 0, 0); // Red
-	      if(solution_qubo[qubo_solution_num][i] != solution_cobi[0][i]) { // difference 
+	      if(solution_qubo[qubo_solution_num][i] != solution_cobi[1][i]) { // difference 
 		  stroke(255,120,0);       // Yellow line
 		  strokeWeight(10); 
 	      }
@@ -762,9 +826,9 @@ void draw_nodes(float offset_x, float offset_y, int mode, int sol_num){
 	      }
 	      ellipse(loc_x, loc_y , radius, radius);
 	  }
-	  else if(solution_cobi[0][i] == 1) {
+	  else if(solution_cobi[1][i] == 1) {
 	      fill(0, 0, 255); // Blue
-	      if(solution_qubo[qubo_solution_num][i] != solution_cobi[0][i]) { // difference 
+	      if(solution_qubo[qubo_solution_num][i] != solution_cobi[1][i]) { // difference 
 		  stroke(255,120,0);       // Yellow line
 		  strokeWeight(10); 
 	      }
@@ -863,6 +927,9 @@ void draw_nodes(float offset_x, float offset_y, int mode, int sol_num){
   for (int i = 1; (i <= importer.num_node) && (i < 20 ); i++) {   // run order
       // Print Graph based on mapping order
 
+      textSize(18);
+      textAlign(CENTER, CENTER);
+	  
       int map_i=0;
       for (int j= 1; j<= importer.num_node; j++){
 	  if(i == importer.node_info_arr[j].order) {            // check sort order == run order
@@ -871,7 +938,7 @@ void draw_nodes(float offset_x, float offset_y, int mode, int sol_num){
       }
 
       if(mode == 3) {
-	  if(solution_qubo[qubo_solution_num][map_i] != solution_cobi[0][map_i]) { // difference 
+	  if(solution_qubo[qubo_solution_num][map_i] != solution_cobi[1][map_i]) { // difference 
 	      stroke(255,120,0);       // Yellow line
 	      strokeWeight(10); 
 	  }
@@ -936,13 +1003,13 @@ void draw_nodes(float offset_x, float offset_y, int mode, int sol_num){
 	  stroke(111, 87, 0);
 	  textSize(20);
 	  textAlign(LEFT, BOTTOM);
-	  String sign = (solution_cobi[0][map_i] < 0) ? "" : "+";
+	  String sign = (solution_cobi[1][map_i] < 0) ? "" : "+";
 	  if( i == 1) {
 	      text("MEAS =  { ", width*2/3+10, 303);
-	      text(sign + str(solution_cobi[0][map_i]), bar_x+10, 303);         // Draw text      	      
+	      text(sign + str(solution_cobi[1][map_i]), bar_x+10, 303);         // Draw text      	      
 	  }
 	  else if( i < 18 ){
-	      text("," + sign + str(solution_cobi[0][map_i]), bar_x+10, 303);         // Draw text      
+	      text("," + sign + str(solution_cobi[1][map_i]), bar_x+10, 303);         // Draw text      
 	  }
 	  else if ( i == 18 ) {
 	      text("..", bar_x+10, 303);         // Draw text      
@@ -971,10 +1038,13 @@ void draw_nodes(float offset_x, float offset_y, int mode, int sol_num){
 void draw_edges(float offset_x, float offset_y, int mode){
   float startWeight = 1;
   float endWeight = 5;
-  color startColor = color(0, 0, 0);  
+  color startColor = color(0, 0, 0);
 
-  color endColor_plus  = color(255, 0, 0);
-  color endColor_minus = color(0, 0, 255);
+  color startColor_plus  = color(0,   0, 100);  
+  color startColor_minus = color(100, 0, 0);
+  
+  color endColor_plus  = color(0, 0, 255);
+  color endColor_minus = color(255, 0, 0);
   color lineColor = color(0, 0, 0);
 
   float loc_x_ni;
@@ -1012,9 +1082,9 @@ void draw_edges(float offset_x, float offset_y, int mode){
 		  float weight = startWeight + weightValue * (endWeight - startWeight);
 		  //color lineColor = pair_weight < 0 ? startColor : endColor;
 		  if(pair_weight>0)
-		      lineColor = lerpColor(startColor, endColor_plus, weightValue);
+		      lineColor = lerpColor(startColor_plus, endColor_plus, weightValue);
 		  if(pair_weight<0)
-		      lineColor = lerpColor(startColor, endColor_minus, weightValue);
+		      lineColor = lerpColor(startColor_minus, endColor_minus, weightValue);
 		  strokeWeight(weight);
 		  stroke(lineColor);
 	      }
@@ -1026,9 +1096,9 @@ void draw_edges(float offset_x, float offset_y, int mode){
 		      weight = startWeight + weightValue * (endWeight - startWeight);
 		      //color lineColor = pair_weight < 0 ? startColor : endColor;
 		      if(pair_weight>0)
-			  lineColor = lerpColor(startColor, endColor_plus, weightValue);
+			  lineColor = lerpColor(startColor_plus, endColor_plus, weightValue);
 		      if(pair_weight<0)
-			  lineColor = lerpColor(startColor, endColor_minus, weightValue);
+			  lineColor = lerpColor(startColor_minus, endColor_minus, weightValue);
 		  }
 		  else {
 
@@ -1045,9 +1115,9 @@ void draw_edges(float offset_x, float offset_y, int mode){
 		      weight = startWeight + weightValue * (endWeight - startWeight);
 		      //color lineColor = pair_weight < 0 ? startColor : endColor;
 		      if(pair_weight>0)
-			  lineColor = lerpColor(startColor, endColor_plus, weightValue);
+			  lineColor = lerpColor(startColor_plus, endColor_plus, weightValue);
 		      if(pair_weight<0)
-			  lineColor = lerpColor(startColor, endColor_minus, weightValue);
+			  lineColor = lerpColor(startColor_minus, endColor_minus, weightValue);
 		  }
 		  else {
 
@@ -1066,82 +1136,128 @@ void draw_edges(float offset_x, float offset_y, int mode){
 
 void mouseClicked() {
 
-  float loc_x;
-  float loc_y;
+    if(mouseButton == LEFT){
+	float loc_x;
+	float loc_y;
 
-  float dis_x;
-  float dis_y;
+	float dis_x;
+	float dis_y;
 
-  int select = (int) dropdown_sol.getValue();
+	int select = (int) dropdown_sol.getValue();
 
-  println("mouse clicked");
-  println("Solution Number : " + str(select));
+	println("mouse clicked");
+	println("Solution Number : " + str(select));
 
-  if(node_sort == 4) {
-        mapping_table = importer.node_mapping_by_spin_sol1(mapping_table);
-  }
-  if(importer.num_node > 0) {  // after drawing graph
-      for(int i = 1; i<= importer.num_node; i++){
+	if(node_sort == 4) {
+	    mapping_table = importer.node_mapping_by_spin_sol1(mapping_table);
+	}
+	if(importer.num_node > 0) {  // after drawing graph
+	    for(int i = 1; i<= importer.num_node; i++){
 
 
-	  int map_i = mapping_table[i];
-	  loc_x = importer.node_info_arr[map_i].loc_x;
-	  loc_y = importer.node_info_arr[map_i].loc_y;
+		int map_i = mapping_table[i];
+		loc_x = importer.node_info_arr[map_i].loc_x;
+		loc_y = importer.node_info_arr[map_i].loc_y;
 
-	  // Problem Graph
-	  dis_x = loc_x + 0;
-	  dis_y = loc_y + 0;
+		// Problem Graph
+		dis_x = loc_x + 0;
+		dis_y = loc_y + 0;
 
-	  float d = dist(mouseX, mouseY, dis_x, dis_y);
-	  if (d < node_radius/2) { // if mouse is clicking on the node
-	      flag_mouse_click[1][i] = ~flag_mouse_click[1][i];     // invert flag
-	  }
+		float d = dist(mouseX, mouseY, dis_x, dis_y);
+		if (d < node_radius/2) { // if mouse is clicking on the node
+		    flag_mouse_click[1][i] = ~flag_mouse_click[1][i];     // invert flag
+		}
 
-	  // Solution #1
-	  dis_x = loc_x + offset_pr1;
-	  dis_y = loc_y;
+		// Solution #1
+		dis_x = loc_x + offset_pr1;
+		dis_y = loc_y;
 
-	  d = dist(mouseX, mouseY, dis_x, dis_y);
+		d = dist(mouseX, mouseY, dis_x, dis_y);
 
-	  if (d < node_radius/2) { // if mouse is clicking on the node
-	      if(flag_mouse_click[2][i] == 0) {
-		  flag_mouse_click[2][i] = 1;
-		  if(last_clicked_node != last_clicked_node_pre){
-		      last_clicked_node_pre = last_clicked_node;
-		  }
-		  last_clicked_node = i;
-	      }
+		if (d < node_radius/2) { // if mouse is clicking on the node
+		    if(flag_mouse_click[2][i] == 0) {
+			flag_mouse_click[2][i] = 1;
+			if(last_clicked_node != last_clicked_node_pre){
+			    last_clicked_node_pre = last_clicked_node;
+			}
+			last_clicked_node = i;
+		    }
 	      
-	      else
-		  flag_mouse_click[2][i] = 0;
+		    else
+			flag_mouse_click[2][i] = 0;
 	      
-	  }
+		}
 
-	  // Solution #2
-	  dis_x = loc_x + offset_pr2;
-	  dis_y = loc_y;
+		// Solution #2
+		dis_x = loc_x + offset_pr2;
+		dis_y = loc_y;
 
-	  d = dist(mouseX, mouseY, dis_x, dis_y);
-	  if (d < node_radius/2) { // if mouse is clicking on the node
-	      if(flag_mouse_click[3][i] == 0) {
-		  flag_mouse_click[3][i] = 1;
-		  if(last_clicked_node != last_clicked_node_pre){
-		      last_clicked_node_pre = last_clicked_node;
-		  }
-		  last_clicked_node = i;
+		d = dist(mouseX, mouseY, dis_x, dis_y);
+		if (d < node_radius/2) { // if mouse is clicking on the node
+		    if(flag_mouse_click[3][i] == 0) {
+			flag_mouse_click[3][i] = 1;
+			if(last_clicked_node != last_clicked_node_pre){
+			    last_clicked_node_pre = last_clicked_node;
+			}
+			last_clicked_node = i;
 
 
-	      }
-	      else
-		  flag_mouse_click[3][i] = 0;
-	      println("mouse clicked"); 
-	  }
+		    }
+		    else
+			flag_mouse_click[3][i] = 0;
+		    println("mouse clicked"); 
+		}
       
-      }
-  }
+	    }
+	}
+    }
 
-  // update hamiltonian
-  hamiltonian();
+    else if(mouseButton == RIGHT){
+	float loc_x;
+	float loc_y;
+
+	float dis_x;
+	float dis_y;
+
+	if(importer.num_node > 0) {  // after drawing graph
+	    for(int i = 1; i<= importer.num_node; i++){
+
+		int map_i = mapping_table[i];
+		loc_x = importer.node_info_arr[map_i].loc_x;
+		loc_y = importer.node_info_arr[map_i].loc_y;
+
+		// Solution #2
+		dis_x = loc_x + offset_pr2;
+		dis_y = loc_y;
+
+		float d = dist(mouseX, mouseY, dis_x, dis_y);
+		if (d < node_radius/2) { // if mouse is clicking on the node
+		    if(flag_mouse_click_right[3][i] == 0) {
+			flag_mouse_click_right[3][i] = 1;
+		    }
+		    else
+			flag_mouse_click_right[3][i] = 0;
+		    println("mouse right clicked"); 
+		}
+      
+	    }
+	}
+
+
+	for(int i = 1; i<= importer.num_node; i++){
+	    if(flag_mouse_click_right[3][i] == 1) {
+		solution_cobi[1][i] = -1 * solution_cobi[0][i];
+	    }
+	    else
+		solution_cobi[1][i] =  1 * solution_cobi[0][i];
+	}
+    }
+
+    // update hamiltonian
+    hamiltonian();
+
+    
+    
 }
 
 // int[][] inputGraphArray = new int[64][64];
@@ -1166,7 +1282,7 @@ void hamiltonian(){
 	    }
 
 	    // same sign
-	    if(solution_cobi[0][i] == solution_cobi[0][j]) {
+	    if(solution_cobi[1][i] == solution_cobi[1][j]) {
 		results_cobi = results_cobi - (inputGraphArray[i][j] + inputGraphArray[j][i]);
 	    }
 	    // different sign
