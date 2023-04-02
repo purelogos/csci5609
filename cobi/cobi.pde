@@ -56,25 +56,12 @@ void setup() {
   // size of the graphics window
   size(1920,1080);
 
-  // these coordinates define a rectangular region for the map that happens to be
-  // centered around Micronesia
-  //panZoomMap = new PanZoomMap(5.2, 138, 10.0, 163.1);
-  
-  // these initial values provide a good view of Chuuk Lagoon, but you can
-  // comment these out to start with all of the data on the screen
-  //panZoomMap.scale = 87430.2;
-  //panZoomMap.translateX = -47255.832;
-  //panZoomMap.translateY = -43944.914;
-  
   labelFont = loadFont("Futura-Medium-18.vlw");
 
   fill(111, 87, 0);
   textAlign(CENTER, CENTER);
   text("Data Loader", 50, 50);
 
-
-  //rect(100, 75, 400, 400);
-  
 
   // Drop down menu
   cp5 = new ControlP5(this);
@@ -177,21 +164,6 @@ void draw() {
   
   solution_number = (int) dropdown_sol.getValue();
   
-  // Municipalities should highlight (i.e., change appearance in some way) whenever the mouse is hovering
-  // over them so the user knows something will happen if they click.  If they do click while a municipality
-  // is highlighted, then that municipality becomes the selectedMunicipality and the visualization should
-  // update to show kinship relationships for it.
-  //highlightedMunicipality = getMunicipalityUnderMouse();
-  
-  // draw the bounds of the map
-  // fill(250);
-  // stroke(111, 87, 0);
-  // rectMode(CORNERS);
-  // float mapX1 = panZoomMap.longitudeToScreenX(138.0);
-  // float mapY1 = panZoomMap.latitudeToScreenY(5.2);
-  // float mapX2 = panZoomMap.longitudeToScreenX(163.1);
-  // float mapY2 = panZoomMap.latitudeToScreenY(10.0);
-  // rect(mapX1, mapY1, mapX2, mapY2);
 
   // First Pannel
   fill(255);
@@ -243,7 +215,7 @@ void draw() {
   stroke(111, 87, 0);
   textSize(20);
   textAlign(LEFT, BOTTOM);
-  text("Ising Problem : " + mouseX + "," + mouseY + "\n Ham : " + ham_qubo[solution_number],  mouseX, mouseY);
+  text("Ising Problem : " + mouseX + "," + mouseY + "\n Ham : " + ham_qubo[solution_number] + "\n Ham cobi" + ham_cobi[0],  mouseX, mouseY);
 
 
   fill(0);
@@ -292,6 +264,29 @@ void draw() {
   text("Results of Measurements Obtained Using Hardware (UMN VLSI Lab)" ,1600, 283);    
 
 
+
+  // Solution Quaility
+  fill(0);
+  stroke(111, 87, 0);
+  textSize(30);
+  textAlign(LEFT, BOTTOM);
+  String formula = "H = - ∑ Spin(i)*Spin(j)*Edge(ij)";
+  text("Solution Quality : " + formula , 660, 150);    
+
+  fill(0);
+  stroke(111, 87, 0);
+  textSize(20);
+  textAlign(LEFT, BOTTOM);
+  text("Golden Solution" , 660, 180);    
+
+
+  fill(0);
+  stroke(111, 87, 0);
+  textSize(20);
+  textAlign(LEFT, BOTTOM);
+  text("Measurements Result" , 660, 220);    
+
+
   if(last_clicked_node != 0){
 	  fill(#006400);
 	  textAlign(LEFT, BOTTOM);
@@ -317,6 +312,26 @@ void draw() {
 	  text("Sum of edges :" + str(importer.node_info_arr[last_clicked_node_pre].connected_edge_sum)             , width*2/3+30, 150+60);
 	  text("Sum of edges(ABS) :" + str(importer.node_info_arr[last_clicked_node_pre].connected_edge_sum_abs)    , width*2/3+30, 150+75);
   }
+
+
+  /////////////////////////////////////////////////////////////////////////////////
+  // Draw bar chart for comparing solution quality
+
+  float barGap = 20;                   // gap between bars
+  float normalizedData = width/3 -200; // normalize the data
+  float barHeight = 20;   
+  float xPos = width*1/3 + 205; 
+  float yPos = 160;       
+
+  fill(0, 100, 200);      
+  rect(xPos, yPos, normalizedData, barHeight); // draw the bar
+
+  normalizedData = map(Math.abs(ham_cobi[0]), 0, Math.abs(ham_qubo[solution_number]), 0, normalizedData); // normalize the data
+  yPos = yPos + (barHeight + barGap); 
+  rect(xPos, yPos, normalizedData, barHeight); // draw the bar
+
+
+
   /////////////////////////////////////////////////////////////////////////////////
   // Ising Problem 
   // Drawing Nodes
@@ -658,7 +673,7 @@ void buttonClicked() {
       break;
   }
 
-  
+  hamiltonian();  
 }
 
 
