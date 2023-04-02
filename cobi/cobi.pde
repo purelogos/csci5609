@@ -166,7 +166,14 @@ void draw() {
   run_num = (int) k_run.getValue();
   
   solution_number = (int) dropdown_sol.getValue();
-  
+
+  // data probe
+  fill(0);
+  stroke(111, 87, 0);
+  textSize(20);
+  textAlign(LEFT, BOTTOM);
+  //text("Ising Problem : " + mouseX + "," + mouseY,  mouseX, mouseY);
+
 
   // First Pannel
   fill(255);
@@ -213,12 +220,8 @@ void draw() {
   strokeWeight(0); //
   rect(width*2/3,300,width/3,height-300);
   
-  
-  fill(0);
-  stroke(111, 87, 0);
-  textSize(20);
-  textAlign(LEFT, BOTTOM);
-  text("Ising Problem : " + mouseX + "," + mouseY,  mouseX, mouseY);
+
+
 
 
   fill(0);
@@ -269,26 +272,6 @@ void draw() {
 
 
 
-  // Solution Quaility
-  fill(0);
-  stroke(111, 87, 0);
-  textSize(30);
-  textAlign(LEFT, BOTTOM);
-  String formula = "H = - ∑ Spin(i)*Spin(j)*Edge(ij)";
-  text("Solution Quality : " + formula , 660, 50);    
-
-  fill(0);
-  stroke(111, 87, 0);
-  textSize(20);
-  textAlign(LEFT, BOTTOM);
-  text("Golden Solution" , 655, 82);    
-
-
-  fill(0);
-  stroke(111, 87, 0);
-  textSize(20);
-  textAlign(LEFT, BOTTOM);
-  text("Measurements Result" , 655, 122);    
 
 
 
@@ -306,8 +289,8 @@ void draw() {
       strokeWeight(weight);
       stroke(lineColor);
 
-      text("+" + i, 455, 60+i*14);
-      line(405, 47+i*14, 445, 47+i*14);
+      text("+" + i, 465, 60+i*14);
+      line(415, 47+i*14, 455, 47+i*14);
   }
 
   for(int i = -1; i>=-14; i--){
@@ -392,7 +375,90 @@ void draw() {
   rect(xPos, yPos, normalizedData, barHeight); // draw the bar
 
 
+  // Solution Quaility
+  fill(0);
+  stroke(111, 87, 0);
+  textSize(30);
+  textAlign(LEFT, BOTTOM);
+  String formula = "H = - ∑ Spin(i)*Spin(j)*Edge(ij)";
+  text("Solution Quality : " + formula , 660, 50);    
 
+  fill(0);
+  stroke(111, 87, 0);
+  textSize(20);
+  textAlign(LEFT, BOTTOM);
+  text("Golden Solution", 655, 82);
+  fill(255);
+  text(str(Math.abs(ham_qubo[solution_number])) + "  " + "= 100" + "%", 850, 82);    
+
+  fill(0);
+  stroke(111, 87, 0);
+  textSize(20);
+  textAlign(LEFT, BOTTOM);
+  text("Measurements Result", 655, 122);
+  fill(255);
+  
+  float error = 0;
+  if(ham_cobi[0] != 0) {
+      error = ((float) (ham_cobi[0])) / (float)(ham_qubo[solution_number]) * 100;
+  }
+  text(str(Math.abs(ham_cobi[0])) + "  = " + str(error) + "%"   , 850, 122);
+
+  
+  /////////////////////////////////////////////////////////////////////////////////
+  // Draw legends of error nodes
+  
+  stroke(255,120,0);       // Yellow line
+  strokeWeight(10);
+  fill(0, 0, 255); // Blue
+  ellipse(1850, 360 , node_radius, node_radius);
+
+  stroke(255,120,0);       // Yellow line
+  strokeWeight(10);
+  fill(255, 0, 0); // Red
+  ellipse(1890, 360 , node_radius, node_radius);
+
+  stroke(0,0,0);  
+  strokeWeight(0);
+  fill(0, 0, 0); 
+
+  fill(0);
+  stroke(111, 87, 0);
+  textSize(20);
+  textAlign(LEFT, BOTTOM);
+  text("Mismatched Nodes : " , 1730, 330);
+  
+  /////////////////////////////////////////////////////////////////////////////////
+  // Draw legends of error nodes
+  
+
+  fill(0, 0, 255);         // Blue
+  ellipse(1210, 360 , node_radius, node_radius);
+  fill(255); // White
+  textAlign(CENTER, CENTER);
+  textSize(16); // 
+  text("+1", 1210, 360);
+
+	      
+  fill(255, 0, 0);         // Red
+  ellipse(1250, 360 , node_radius, node_radius);
+  fill(255); // White
+  textAlign(CENTER, CENTER);
+  textSize(16); // 
+  text("-1", 1250, 360);
+
+
+  stroke(0,0,0);  
+  strokeWeight(0);
+  fill(0, 0, 0); 
+
+  fill(0);
+  stroke(111, 87, 0);
+  textSize(20);
+  textAlign(LEFT, BOTTOM);
+  text("Spin Values : {+1, -1}" , 1090, 330);
+
+  
   /////////////////////////////////////////////////////////////////////////////////
   // Ising Problem 
   // Drawing Nodes
