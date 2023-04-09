@@ -65,6 +65,7 @@ public class GraphImporter {
     int num_edge;
     int num_solutions;
 
+    int num_ham_improve;
 
     node_info[] node_info_arr = new node_info[64];
     // Centroid of circle
@@ -478,5 +479,47 @@ public class GraphImporter {
 	//input_mapping_array[i] = this.num_node - i + 1;
 	return input_mapping_array;
     }
+
+    public int[] node_mapping_by_ham_impact (int[] input_mapping_array) {
+
+	// Results
+	for (int i = 1; i < this.num_node; i++) {
+	    println(this.node_info_arr[i].node_id + ": " +this.node_info_arr[i].order + ": " + this.node_info_arr[i].ham_impact_sol2);
+	}
+
+	for (int i = 1; i <= this.num_node; i++) {
+	    int highCount = 0;
+	    for (int j = 1; j <= this.num_node; j++) {
+		if (this.node_info_arr[i].ham_impact_sol2 < this.node_info_arr[j].ham_impact_sol2) {
+		    highCount++;
+		}
+	    }
+	    this.node_info_arr[i].order = highCount +1;
+
+	    input_mapping_array[i] = highCount +1;
+	}
+
+	// same order change
+	for (int i = 1; i <= this.num_node; i++) {
+	    int order = this.node_info_arr[i].order;
+	    int order_plus = 1;
+	    for (int j = i+1; j <= this.num_node; j++) {
+		if (this.node_info_arr[i].order == this.node_info_arr[j].order) {
+		    this.node_info_arr[j].order = order + order_plus;
+		    input_mapping_array[j]      = order + order_plus; 
+		    order_plus++;
+		}
+	    }
+	}
+
+	// Results
+	for (int i = 1; i < this.node_info_arr.length; i++) {
+	    println(this.node_info_arr[i].node_id + ": " + this.node_info_arr[i].order + ": " + this.node_info_arr[i].ham_impact_sol2);
+	}
+
+	//input_mapping_array[i] = this.num_node - i + 1;
+	return input_mapping_array;
+    }
+
     
 }

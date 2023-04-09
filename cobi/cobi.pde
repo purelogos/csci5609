@@ -126,7 +126,7 @@ void setup() {
   dropdown.addItem("Sort by Edge Weight Sum ABS", 3);
   dropdown.addItem("By spin values in solution #1", 4);
   dropdown.addItem("By spin values in solution #2", 5);
-  dropdown.addItem("(T.B.D) By spin values in solution #2", 6);
+  dropdown.addItem("Hamiltonian impact if single node flipped", 6);
 
   // Set the default value of the dropdown menu to the first option (A)
   dropdown.setValue(0);
@@ -270,6 +270,11 @@ void draw() {
   textAlign(CENTER, BOTTOM);
   text("Results of Measurements Obtained Using Hardware (UMN VLSI Lab)" ,1600, 283);    
 
+  fill(0);
+  stroke(111, 87, 0);
+  textSize(20);
+  textAlign(CENTER, BOTTOM);
+  text("No of nodes improving Hamiltonian by self-flipping : " + importer.num_ham_improve ,1600, 250);    
 
 
 
@@ -798,7 +803,7 @@ void buttonClicked() {
       mapping_table = importer.node_mapping_by_spin_sol2(mapping_table);
       break;
   case 6:
-      //mapping_table = importer.node_mapping_by_edge_abs(mapping_table);
+      mapping_table = importer.node_mapping_by_ham_impact(mapping_table);
 
       break;
   }
@@ -983,11 +988,25 @@ void draw_nodes(float offset_x, float offset_y, int mode, int sol_num){
 	      has_negative = 1;
 	  }
       }
+
+      else if(node_sort == 6) {                                        // 
+	  values[i] = importer.node_info_arr[i].ham_impact_sol2;
+	  title_of_bar = "Impact of solution quaility if single node fliped";
+	  if(maxVal < values[i]){
+	      maxVal = values[i];
+	  }
+	  if ( values[i] < 0) {
+	      has_negative = 1;
+	  }
+      }
       
   }
   
   for (int i = 1; i <= importer.num_node; i++) {
-      normalizedValues[i] = values[i] / (float)maxVal; // Normalization
+      if(maxVal >= 0)
+	  normalizedValues[i] = values[i] / (float)maxVal; // Normalization
+      else
+	  normalizedValues[i] = -1 * values[i] / (float)maxVal; // Normalization
   }
 
   for (int i = 1; (i <= importer.num_node) && (i < 20 ); i++) {   // run order
@@ -1202,6 +1221,13 @@ void draw_edges(float offset_x, float offset_y, int mode){
 
 void mouseClicked() {
 
+    if(node_sort == 4) {
+	mapping_table = importer.node_mapping_by_spin_sol1(mapping_table);
+    }
+
+    if(node_sort == 6) {
+	mapping_table = importer.node_mapping_by_ham_impact(mapping_table);
+    }
     if(mouseButton == LEFT){
 	float loc_x;
 	float loc_y;
@@ -1214,9 +1240,7 @@ void mouseClicked() {
 	println("mouse clicked");
 	println("Solution Number : " + str(select));
 
-	if(node_sort == 4) {
-	    mapping_table = importer.node_mapping_by_spin_sol1(mapping_table);
-	}
+
 	if(importer.num_node > 0) {  // after drawing graph
 	    for(int i = 1; i<= importer.num_node; i++){
 
@@ -1360,4 +1384,36 @@ void hamiltonian(){
     ham_qubo[solution_number] = results_qubo;
     ham_cobi[0]               = results_cobi;
     
+
+    // Calculating the impact of hamiltonian if inverting single bit
+    importer.num_ham_improve = 0;
+    for(int node = 1; node<= importer.num_node; node++){
+	// generating new solution space - solution_cobi[2][:] and fliping node based on iterator
+	for(int i = 1; i<= importer.num_node; i++){
+	    if (node == i)
+		solution_cobi[2][i] = solution_cobi[1][i] * (-1);
+	    else 
+		solution_cobi[2][i] = solution_cobi[1][i];
+	}
+
+	int result_impact = 0;
+	// Calcuating hamiltonian impact using solution_cobi[2]
+	for(int i=1 ; i <= importer.num_node; i++){
+	    for(int j=1 ; j < i; j++){
+		// same sign
+		if(solution_cobi[2][i] == solution_cobi[2][j]) {
+		    result_impact =  result_impact - (inputGraphArray[i][j] + inputGraphArray[j][i]);
+		}
+		// different sign
+		else {
+		    result_impact = result_impact + (inputGraphArray[i][j] + inputGraphArray[j][i]);
+		}
+	    }
+	}
+	importer.node_info_arr[node].ham_impact_sol2 = results_cobi - result_impact;  // assign difference 
+	if (results_cobi > result_impact) {
+	    importer.num_ham_improve++;
+	}
+	
+    }
 }
