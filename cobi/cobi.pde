@@ -274,7 +274,7 @@ void draw() {
   stroke(111, 87, 0);
   textSize(20);
   textAlign(CENTER, BOTTOM);
-  text("No of nodes improving Hamiltonian by self-flipping : " + importer.num_ham_improve ,1600, 250);    
+  text("No of candidate spin for Gradient Decent : " + importer.num_ham_improve ,1500, 250);    
 
 
 
@@ -432,10 +432,51 @@ void draw() {
   textSize(20);
   textAlign(LEFT, BOTTOM);
   text("Mismatched Nodes : " , 1730, 330);
-  
+
+
+  fill(0);
+  stroke(111, 87, 0);
+  textSize(20);
+  textAlign(LEFT, BOTTOM);
+  text("Candidate for GD : " , 1300, 330);
+
+
+  fill(#800080); // Purple
+  ellipse(1310, 360 , node_radius+10, node_radius+10);
+  strokeWeight(0);
+  fill(0, 0, 255); // Blue
+  ellipse(1310, 360 , node_radius, node_radius);
+
+
+  fill(#800080);    // Purple
+  ellipse(1340, 360 , node_radius+10, node_radius+10);
+  strokeWeight(0);
+  fill(255, 0, 0); // Red
+  ellipse(1340, 360 , node_radius, node_radius);
+
+
+  fill(#800080); // Purple
+  ellipse(1380, 360 , node_radius+20, node_radius+20);
+  stroke(255,120,0);       // Yellow line
+  strokeWeight(10);
+  fill(0, 0, 255); // Blue
+  ellipse(1380, 360 , node_radius, node_radius);
+
+
+  strokeWeight(0);
+  stroke(0,0,0);       // Yellow line
+  fill(#800080); // Purple
+  ellipse(1420, 360 , node_radius+20, node_radius+20);
+  stroke(255,120,0);       // Yellow line
+  strokeWeight(10);
+  fill(255, 0, 0); // Red
+  ellipse(1420, 360 , node_radius, node_radius);
+
   /////////////////////////////////////////////////////////////////////////////////
   // Draw legends of error nodes
-  
+  stroke(0,0,0);  
+  strokeWeight(0);
+  fill(0, 0, 0); 
 
   fill(0, 0, 255);         // Blue
   ellipse(1210, 360 , node_radius, node_radius);
@@ -885,30 +926,54 @@ void draw_nodes(float offset_x, float offset_y, int mode, int sol_num){
 	  }
       }
       else if(mode == 3) {
+	  
+	  
 	  if(solution_cobi[1][i] == -1) {
-	      fill(255, 0, 0); // Red
 	      if(solution_qubo[qubo_solution_num][i] != solution_cobi[1][i]) { // difference 
+		  // gradient decents
+		  if(importer.node_info_arr[i].ham_impact_sol2 > 0){
+		      fill(#800080); // Green
+		      ellipse(loc_x, loc_y , radius+20, radius+20);
+		  }
 		  stroke(255,120,0);       // Yellow line
-		  strokeWeight(10); 
+		  strokeWeight(10);
 	      }
 	      else {
+		  // gradient decents
+		  if(importer.node_info_arr[i].ham_impact_sol2 > 0){
+		      fill(#800080); // Green
+		      ellipse(loc_x, loc_y , radius+11, radius+11);
+		  }
 		  stroke(0);       // Black Line
 		  strokeWeight(0); //
 	      }
+	      fill(255, 0, 0); // Red
 	      ellipse(loc_x, loc_y , radius, radius);
 	  }
 	  else if(solution_cobi[1][i] == 1) {
-	      fill(0, 0, 255); // Blue
 	      if(solution_qubo[qubo_solution_num][i] != solution_cobi[1][i]) { // difference 
+		  // gradient decents
+		  if(importer.node_info_arr[i].ham_impact_sol2 > 0){
+		      fill(#800080); // Green
+		      ellipse(loc_x, loc_y , radius+20, radius+20);
+		  }
 		  stroke(255,120,0);       // Yellow line
 		  strokeWeight(10); 
 	      }
 	      else {
+		  // gradient decents
+		  if(importer.node_info_arr[i].ham_impact_sol2 > 0){
+		      fill(#800080); // Green
+		      ellipse(loc_x, loc_y , radius+11, radius+11);
+		  }
 		  stroke(0);       // Black Line
 		  strokeWeight(0); //
 	      }
+	      fill(0, 0, 255); // Blue
 	      ellipse(loc_x, loc_y , radius, radius);
-	  }	  
+	  }
+	  
+	  
 	  stroke(0);       // Black Line
 	  strokeWeight(0); //
       }
@@ -991,12 +1056,13 @@ void draw_nodes(float offset_x, float offset_y, int mode, int sol_num){
 
       else if(node_sort == 6) {                                        // 
 	  values[i] = importer.node_info_arr[i].ham_impact_sol2;
-	  title_of_bar = "Impact of solution quaility if single node fliped";
+	  title_of_bar = "Candidate spins \n for Gradient Descent";
 	  if(maxVal < values[i]){
 	      maxVal = values[i];
 	  }
 	  if ( values[i] < 0) {
-	      has_negative = 1;
+	      // has_negative = 1;
+	      values[i] = 0;
 	  }
       }
       
