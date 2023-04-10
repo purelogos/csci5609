@@ -442,35 +442,38 @@ void draw() {
 
 
   fill(#800080); // Purple
-  ellipse(1310, 360 , node_radius+10, node_radius+10);
-  strokeWeight(0);
+  ellipse(1315, 360 , node_radius+20, node_radius+20);
+  stroke(255,120,0);       // Yellow line
+  strokeWeight(10);
   fill(0, 0, 255); // Blue
-  ellipse(1310, 360 , node_radius, node_radius);
+  ellipse(1315, 360 , node_radius, node_radius);
 
-
-  fill(#800080);    // Purple
-  ellipse(1340, 360 , node_radius+10, node_radius+10);
   strokeWeight(0);
+  stroke(0,0,0);       
+  fill(#800080); // Purple
+  ellipse(1340, 360 , node_radius+20, node_radius+20);
+  stroke(255,120,0);       // Yellow line
+  strokeWeight(10);
   fill(255, 0, 0); // Red
   ellipse(1340, 360 , node_radius, node_radius);
 
+  strokeWeight(0);
+  stroke(0,0,0);       
 
   fill(#800080); // Purple
-  ellipse(1380, 360 , node_radius+20, node_radius+20);
-  stroke(255,120,0);       // Yellow line
-  strokeWeight(10);
+  ellipse(1380, 360 , node_radius+10, node_radius+10);
+  strokeWeight(0);
   fill(0, 0, 255); // Blue
   ellipse(1380, 360 , node_radius, node_radius);
 
 
+  fill(#800080);    // Purple
+  ellipse(1400, 360 , node_radius+10, node_radius+10);
   strokeWeight(0);
-  stroke(0,0,0);       // Yellow line
-  fill(#800080); // Purple
-  ellipse(1420, 360 , node_radius+20, node_radius+20);
-  stroke(255,120,0);       // Yellow line
-  strokeWeight(10);
   fill(255, 0, 0); // Red
-  ellipse(1420, 360 , node_radius, node_radius);
+  ellipse(1400, 360 , node_radius, node_radius);
+
+
 
   /////////////////////////////////////////////////////////////////////////////////
   // Draw legends of error nodes
